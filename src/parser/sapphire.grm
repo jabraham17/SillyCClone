@@ -1,0 +1,37 @@
+
+/*
+comments
+*/
+
+
+FUNC funcname;
+PARAM x, y, z;
+{
+VAR a, b, c, c9;
+
+a = _a + b_;
+x = 7;
+}
+
+
+/*
+file -> function_def_list;
+function_def_list -> function_def | function_def function_def_list;
+function_def -> FUNC function_name SEMICOLON param_def scope;
+function_name -> ID;
+param_def -> PARAM id_list SEMICOLON | ;
+scope -> LCURLY var_def statement_list RCURLY;
+var_def -> VAR id_list SEMICOLON | ;
+statement_list -> statement | statement statement_list;
+statement -> statement_ SEMICOLON;
+statement_ -> assign_statement | function_call | return_statement | if_statement | while_statement;
+assign_statement -> ID EQUALS expr;
+expr -> primary | primary operator primary;
+operator -> PLUS | MINUS | DEQUALS;
+primary -> NUM | ID | function_call;
+function_call -> CALL function_name;
+return_statement -> return ID;
+if_statement -> IF LPAREN expr RPAREN scope;
+while_statement -> WHILE LPAREN expr RPAREN scope;
+id_list -> ID | ID COMMA id_list
+*/

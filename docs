@@ -1,0 +1,15 @@
+http://aquamentus.com/flex_bison.html
+
+https://raywang.tech/2017/03/07/Flex-and-Bison-for-a-simple-language-MITScript/
+
+
+https://www.lysator.liu.se/c/ANSI-C-grammar-y.html
+https://www.lysator.liu.se/c/ANSI-C-grammar-l.html
+
+https://www.cs.virginia.edu/~cr4bd/flex-manual/Start-Conditions.html#Start-Conditions
+
+
+
+./bin/sapphire <test.txt | dot -Tpng | open -a Preview.app -f
+
+https://www.gnu.org/software/bison/manual/html_node/Error-Recovery.html

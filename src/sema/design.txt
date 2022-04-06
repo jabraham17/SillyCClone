@@ -1,0 +1,44 @@
+
+function {
+    list of variables, these are the params
+    scope
+}
+
+function list {
+    function
+    next ptr
+    prev ptr
+}
+
+scope {
+    list of statements
+    list of variables
+}
+
+some statements open new scopes, this is encapsulated in type specific data
+
+statement list {
+    statement
+    next ptr
+    prev ptr
+}
+
+statement {
+    type
+    type specific data
+    parent scope ptr
+}
+
+variable {
+    name
+    scope ptr
+}
+
+
+pass manager
+
+struct Pass {
+    void runOnFunction(Function*, Pass*)
+    void* getResult(); 
+    //any pass specific data
+}
