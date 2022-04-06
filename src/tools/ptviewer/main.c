@@ -3,7 +3,9 @@
 #include "parser/parser.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
+#include <getopt.h>
 
 void _ptToDot(pt_t* pt, FILE* f) {
     if(pt == NULL)

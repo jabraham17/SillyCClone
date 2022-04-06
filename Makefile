@@ -9,11 +9,18 @@ export ROOT_PROJECT_DIRECTORY=$(MKFILE_DIR)
 export BIN_DIRECTORY=$(ROOT_PROJECT_DIRECTORY)bin/
 export LIB_DIRECTORY=$(ROOT_PROJECT_DIRECTORY)lib/
 
+export OS=$(shell uname)
+ifeq ($(OS),Linux)
+export CC=/usr/bin/gcc
+export BISON=/usr/bin/bison
+export FLEX=/usr/bin/flex
+else
 export CC=/usr/local/opt/llvm/bin/clang
-export AS=nasm
-export LD=$(CC)
 export BISON=/usr/local/opt/bison/bin/bison
 export FLEX=/usr/local/opt/flex/bin/flex
+endif
+export AS=nasm
+export LD=$(CC)
 
 export EXTENSION=c
 
@@ -25,7 +32,7 @@ endif
 
 override CFLAGS+= -Wall -Wextra
 override CFLAGS+= -masm=intel
-override CFLAGS+= -std=c11
+override CFLAGS+= -std=gnu11
 override ASFLAGS+=
 
 override LDFLAGS+=

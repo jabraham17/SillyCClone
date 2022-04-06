@@ -36,7 +36,11 @@ $(TARGET): sapphire.o $(OBJECTS) Makefile
 
 sapphire.o: sapphire.yy sapphire.l Makefile
 	@echo "BISON $@"
+ifeq ($(OS),Linux)
+	@$(BISON) -Wall sapphire.yy -o __bison_sapphire.c.temp --defines=sapphire_parser.h
+else
 	@$(BISON) -Wall sapphire.yy -o __bison_sapphire.c.temp --header=sapphire_parser.h
+endif
 	@echo "FLEX $@"
 	@$(FLEX) -o __flex_sapphire.c.temp sapphire.l
 	@echo "CC $@"

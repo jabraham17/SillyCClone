@@ -16,6 +16,7 @@ ID {CHAR_UND}({CHAR_UND}|{DIGIT})*
 NUMBER {DIGIT}+
 
 %option noyywrap
+%option nomain
 
 %x COMMENTS
 
