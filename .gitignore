@@ -1,3 +1,7 @@
 .vscode
 bin
 lib
+*.temp
+*.o
+*.d
+sapphire_parser.h

@@ -1,7 +1,4 @@
 
-
-
-
 C_SOURCES=$(wildcard *.c) $(wildcard */*.c) $(wildcard */*/*.c)
 C_OBJECTS=$(patsubst %.c,%.o,$(C_SOURCES))
 A_SOURCES=$(wildcard *.asm) $(wildcard */*.asm) $(wildcard */*/*.asm)
@@ -20,7 +17,7 @@ all: $(TARGET)
 
 .PHONY: clean
 clean:
-	$(RM) $(TARGET) $(DEPENDS) $(OBJECTS) *.temp sapphire_parser.h sapphire.o
+	@$(RM) $(TARGET) $(DEPENDS) $(OBJECTS) *.temp sapphire_parser.h sapphire.o
 
 $(TARGET): sapphire.o $(OBJECTS) Makefile
 	@echo "LD $(@F)"
@@ -38,8 +35,11 @@ sapphire.o: sapphire.yy sapphire.l Makefile
 	@echo "BISON $@"
 ifeq ($(OS),Linux)
 	@$(BISON) -Wall sapphire.yy -o __bison_sapphire.c.temp --defines=sapphire_parser.h
-else
+else ifeq ($(OS),Darwin)
 	@$(BISON) -Wall sapphire.yy -o __bison_sapphire.c.temp --header=sapphire_parser.h
+else
+	$(warning Build will likely fail as builds on $(OS) are not fully supported)
+	@$(BISON) -Wall sapphire.yy -o __bison_sapphire.c.temp -d
 endif
 	@echo "FLEX $@"
 	@$(FLEX) -o __flex_sapphire.c.temp sapphire.l

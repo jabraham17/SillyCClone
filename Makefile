@@ -14,10 +14,12 @@ ifeq ($(OS),Linux)
 export CC=/usr/bin/gcc
 export BISON=/usr/bin/bison
 export FLEX=/usr/bin/flex
-else
+else ifeq ($(OS),Darwin)
 export CC=/usr/local/opt/llvm/bin/clang
 export BISON=/usr/local/opt/bison/bin/bison
 export FLEX=/usr/local/opt/flex/bin/flex
+else
+$(error Unsupported build on $(OS))
 endif
 export AS=nasm
 export LD=$(CC)
@@ -59,7 +61,7 @@ $(LIB_DIRECTORY):
 	@mkdir -p $@
 
 clean:
-	$(RM) -r $(BIN_DIRECTORY) $(LIB_DIRECTORY)
+	@$(RM) -r $(BIN_DIRECTORY) $(LIB_DIRECTORY)
 
 $(TOPTARGETS): $(SUBDIRS)
 

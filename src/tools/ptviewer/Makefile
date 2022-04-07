@@ -23,7 +23,7 @@ all: $(TARGET)
 
 .PHONY: clean
 clean:
-	$(RM) $(TARGET) $(DEPENDS) $(OBJECTS)
+	@$(RM) $(TARGET) $(DEPENDS) $(OBJECTS)
 
 $(TARGET): $(OBJECTS) Makefile
 	@echo "LD $(@F)"
