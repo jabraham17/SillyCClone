@@ -32,22 +32,22 @@ $(TARGET): sapphire.o $(OBJECTS) Makefile
 	@$(AS) -felf $(CONSTANTS) $< -o $@ -MD $(patsubst %.asm,%.d,$<)
 
 sapphire.o: sapphire.yy sapphire.l Makefile
-	@echo "BISON $@"
+	@echo "YACC $@"
 ifeq ($(OS),Linux)
-	@$(BISON) -Wall sapphire.yy -o __bison_sapphire.c.temp --defines=sapphire_parser.h
+	@$(YACC) $(YFLAGS) sapphire.yy -o __bison_sapphire.c.temp --defines=sapphire_parser.h
 else ifeq ($(OS),Darwin)
-	@$(BISON) -Wall sapphire.yy -o __bison_sapphire.c.temp --header=sapphire_parser.h
+	@$(YACC) $(YFLAGS) sapphire.yy -o __bison_sapphire.c.temp --header=sapphire_parser.h
 else
 	$(warning Build will likely fail as builds on $(OS) are not fully supported)
-	@$(BISON) -Wall sapphire.yy -o __bison_sapphire.c.temp -d
+	@$(YACC) $(YFLAGS) sapphire.yy -o __bison_sapphire.c.temp -d
 endif
-	@echo "FLEX $@"
-	@$(FLEX) -o __flex_sapphire.c.temp sapphire.l
+	@echo "LEX $@"
+	@$(LEX) $(LFLAGS) -o __flex_sapphire.c.temp sapphire.l
 	@echo "CC $@"
 	@$(CC) -c -x c __bison_sapphire.c.temp -x none -o __bison_sapphire.o.temp
 	@echo "CC $@"
 	@$(CC) -c -x c __flex_sapphire.c.temp -x none -o __flex_sapphire.o.temp
 	@echo "LD $@"
-	@$(LD) __bison_sapphire.o.temp __flex_sapphire.o.temp -r -o $@
+	@$(LD) __bison_sapphire.o.temp __flex_sapphire.o.temp $(LDFLAGS) $(LDLIBS) -r -o $@
 
 -include $(DEPENDS)

@@ -1,7 +1,4 @@
 
-
-
-
 C_SOURCES=$(wildcard *.c) $(wildcard */*.c) $(wildcard */*/*.c)
 C_OBJECTS=$(patsubst %.c,%.o,$(C_SOURCES))
 A_SOURCES=$(wildcard *.asm) $(wildcard */*.asm) $(wildcard */*/*.asm)
@@ -10,12 +7,10 @@ OBJECTS=$(C_OBJECTS) $(A_OBJECTS)
 DEPENDS=$(patsubst %.c,%.d,$(C_SOURCES))
 DEPENDS+= $(patsubst %.asm,%_a.d,$(A_SOURCES))
 
-LIBRARIES=parser
-OBJECTS+= $(patsubst %,$(LIB_DIRECTORY)%.o,$(LIBRARIES))
 
 INCLUDE= -I$(ROOT_PROJECT_DIRECTORY)src
 
-TARGET=$(BIN_DIRECTORY)ptviewer
+TARGET=$(LIB_DIRECTORY)sema.o
 
 .PHONY: all
 all: $(TARGET)
@@ -27,7 +22,7 @@ clean:
 
 $(TARGET): $(OBJECTS) Makefile
 	@echo "LD $(@F)"
-	@$(LD) $(OBJECTS) $(LDFLAGS) $(LDFLAGS_FINAL) $(LDLIBS) -o $@
+	@$(LD) $(OBJECTS) $(LDFLAGS) $(LDLIBS) -r -o $@
 
 %.o: %.c Makefile
 	@echo "CC $@"

@@ -1,11 +1,11 @@
 
-#include "parser/parsetree.h"
 #include "parser/parser.h"
+#include "parser/parsetree.h"
+#include <getopt.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <unistd.h>
-#include <getopt.h>
 
 void _ptToDot(pt_t* pt, FILE* f) {
     if(pt == NULL)
@@ -24,7 +24,6 @@ void _ptToDot(pt_t* pt, FILE* f) {
             fprintf(f, "%ld[label=\"%s\"];\n", (intptr_t)pt, pt->data.str);
             break;
         }
-        case pt_STMT:
         case pt_PLUS:
         case pt_MINUS:
         case pt_DEQUALS:
@@ -45,8 +44,7 @@ void _ptToDot(pt_t* pt, FILE* f) {
         case pt_VAR_DEF:
         case pt_PARAM_LIST: {
             fprintf(
-                f, "%ld[label=\"%s", (intptr_t)pt,
-                getPTTypeString(pt->type));
+                f, "%ld[label=\"%s", (intptr_t)pt, getPTTypeString(pt->type));
             char** strs = pt->data.ids;
             size_t idx = 0;
             while(strs != NULL && strs[idx] != NULL) {
@@ -62,10 +60,13 @@ void _ptToDot(pt_t* pt, FILE* f) {
     }
     size_t idx = 0;
     while(pt->children[idx] != NULL) {
-        fprintf(
-            f, "%ld->%ld;\n", (intptr_t)pt, (intptr_t)(pt->children[idx]));
+        fprintf(f, "%ld->%ld;\n", (intptr_t)pt, (intptr_t)(pt->children[idx]));
         _ptToDot(pt->children[idx], f);
         idx++;
+    }
+    if(pt->next != NULL) {
+        fprintf(f, "%ld->%ld[label=next];\n", (intptr_t)pt, (intptr_t)(pt->next));
+        _ptToDot(pt->next, f);
     }
 }
 void ptToDot(pt_t* pt, FILE* f) {
@@ -109,7 +110,6 @@ int main(int argc, char** argv) {
     pt_t* root = parse(inFile);
     fclose(inFile);
 
-
     FILE* outFile = NULL;
     if(outFileName != NULL) {
         outFile = fopen(outFileName, "w");
@@ -122,9 +122,8 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-
     ptToDot(root, outFile);
     fclose(outFile);
-    
+
     return 0;
 }

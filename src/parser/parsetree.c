@@ -33,6 +33,7 @@ pt_t* allocatePT_TYPE(pt_type_t t) {
     pt->type = t;
     memset(&(pt->data), 0, sizeof(pt->data));
     memset(pt->children, 0, sizeof(pt->children));
+    pt->next = NULL;
     return pt;
 }
 pt_t* allocatePT_NUM(int num) {
@@ -69,6 +70,9 @@ void addChild(pt_t* parent, pt_t* child) {
             break;
         }
     }
+}
+void addNext(pt_t* parent, pt_t* next) {
+    parent->next = next;
 }
 
 // statement_t* createFunctionCallStatement(symbol_t* sym, symbol_list_t*

@@ -12,17 +12,18 @@ export LIB_DIRECTORY=$(ROOT_PROJECT_DIRECTORY)lib/
 export OS=$(shell uname)
 ifeq ($(OS),Linux)
 export CC=/usr/bin/gcc
+export LD=$(CC)
 export BISON=/usr/bin/bison
 export FLEX=/usr/bin/flex
 else ifeq ($(OS),Darwin)
 export CC=/usr/local/opt/llvm/bin/clang
-export BISON=/usr/local/opt/bison/bin/bison
-export FLEX=/usr/local/opt/flex/bin/flex
+export LD=$(CC)
+export YACC=/usr/local/opt/bison/bin/bison
+export LEX=/usr/local/opt/flex/bin/flex
 else
 $(error Unsupported build on $(OS))
 endif
 export AS=nasm
-export LD=$(CC)
 
 export EXTENSION=c
 
@@ -34,18 +35,28 @@ endif
 
 override CFLAGS+= -Wall -Wextra
 override CFLAGS+= -masm=intel
-override CFLAGS+= -std=gnu11
+override CFLAGS+= -std=c11
 override ASFLAGS+=
-
 override LDFLAGS+=
-override LDFLAGS+=
+override LDFLAGS_FINAL+=
 override INCLUDE+=
+override YFLAGS+= -Wall
+override LFLAGS+=
+
+ifeq ($(OS),Darwin)
+override LDFLAGS+= -L/usr/local/opt/llvm/lib
+override LDFLAGS_FINAL+= -Wl,-rpath,/usr/local/opt/llvm/lib
+override INCLUDE+= -I/usr/local/opt/llvm/include
+endif
 
 
 export CFLAGS
 export ASFLAGS
 export LDFLAGS
+export LDFLAGS_FINAL
 export INCLUDE
+export YFLAGS
+export LFLAGS
 
 export DEPENFLAGS= -MMD -MP
 

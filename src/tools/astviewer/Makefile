@@ -10,12 +10,12 @@ OBJECTS=$(C_OBJECTS) $(A_OBJECTS)
 DEPENDS=$(patsubst %.c,%.d,$(C_SOURCES))
 DEPENDS+= $(patsubst %.asm,%_a.d,$(A_SOURCES))
 
-LIBRARIES=parser
+LIBRARIES=sema parser
 OBJECTS+= $(patsubst %,$(LIB_DIRECTORY)%.o,$(LIBRARIES))
 
 INCLUDE= -I$(ROOT_PROJECT_DIRECTORY)src
 
-TARGET=$(BIN_DIRECTORY)ptviewer
+TARGET=$(BIN_DIRECTORY)astviewer
 
 .PHONY: all
 all: $(TARGET)

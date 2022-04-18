@@ -5,14 +5,8 @@
 _PREDECLARE_STRUCT_TYPE(function)
 _PREDECLARE_STRUCT_TYPE(function_list)
 _PREDECLARE_STRUCT_TYPE(scope)
-_PREDECLARE_STRUCT_TYPE(assign_stmt)
-_PREDECLARE_STRUCT_TYPE(if_stmt)
-_PREDECLARE_STRUCT_TYPE(while_stmt)
-_PREDECLARE_STRUCT_TYPE(return_stmt)
-_PREDECLARE_STRUCT_TYPE(call_stmt)
-_PREDECLARE_STRUCT_TYPE(expression)
-_PREDECLARE_STRUCT_TYPE(statement)
-_PREDECLARE_STRUCT_TYPE(statement_list)
+_PREDECLARE_STRUCT_TYPE(ast_stmt)
+_PREDECLARE_STRUCT_TYPE(ast_stmt_list)
 _PREDECLARE_STRUCT_TYPE(variable)
 _PREDECLARE_STRUCT_TYPE(variable_list)
 #undef _PREDECLARE_STRUCT_TYPE
@@ -34,50 +28,43 @@ _MAKE_LIST_FOR_TYPE(function)
 struct scope {
     scope_t* parent_scope;
     function_t* function;
-    statement_list_t* statements;
+    ast_stmt_list_t* statements;
     variable_list_t* variables;
 };
 
+#define _AST_TYPES(V)                                                          \
+    V(NOP)                                                                     \
+    V(NUMBER)                                                                  \
+    V(VARIABLE)                                                                \
+    V(EQUALS)                                                                  \
+    V(DEQUALS)                                                                 \
+    V(PLUS)                                                                    \
+    V(MINUS)                                                                   \
+    V(IF)                                                                      \
+    V(WHILE)                                                                   \
+    V(RETURN)                                                                  \
+    V(CALL)                                                                    \
+    V(SCOPE)
+
 typedef enum {
-    st_ASSIGN_STMT,
-    st_IF_STMT,
-    st_WHILE_STMT,
-    st_RETURN_STMT,
-    st_CALL,
-} statement_type_t;
+#define AST_ENUM(_NAME) ast_##_NAME,
+    _AST_TYPES(AST_ENUM)
+#undef AST_ENUM
+} ast_stmt_type_t;
+char* getASTTypeString(ast_stmt_type_t t);
 
-struct assign_stmt {};
-struct if_stmt {};
-struct while_stmt {};
-struct return_stmt {};
-struct call_stmt {};
 
-typedef enum {
-    op_NOP,
-    op_ op_PLUS,
-    op_MINUS,
-    op_DEQUALS,
-} operator_type_t;
-
-struct expression {
-    operator_type_t op;
-    expression_t* expr1;
-    expression_t* expr2;
-};
-
-struct statement {
-    statement_type_t type;
-    // type specific data
+struct ast_stmt {
+    ast_stmt_type_t type;
     union {
-        assign_stmt_t* assign_stmt;
-        if_stmt_t* if_stmt;
-        while_stmt_t* while_stmt;
-        return_stmt_t* return_stmt;
-        call_stmt_t* call_stmt;
-    };
-    scope_t* parent_scope;
+        variable_t* variable;
+        int num;
+        scope_t* scope;
+    } data;
+    ast_stmt_t* left;
+    ast_stmt_t* right;
 };
-_MAKE_LIST_FOR_TYPE(statement)
+_MAKE_LIST_FOR_TYPE(ast_stmt)
 
 struct variable {
     char* name;

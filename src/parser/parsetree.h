@@ -4,11 +4,10 @@
 typedef struct id_list id_list_t;
 id_list_t* getIDNode(char* id, id_list_t* oldList);
 
-#define _PT_TYPES(V)                                                          \
+#define _PT_TYPES(V)                                                           \
     V(NONE)                                                                    \
     V(NUM)                                                                     \
     V(STR)                                                                     \
-    V(STMT)                                                                    \
     /* operators */                                                            \
     V(PLUS)                                                                    \
     V(MINUS)                                                                   \
@@ -46,6 +45,7 @@ struct pt {
         char** ids; // lpt elm MUST be NULL
     } data;
     pt_t* children[_PT_MAX_CHILDREN + 1]; // lpt elm MUST be NULL
+    pt_t* next;
 };
 pt_t* allocatePT();
 pt_t* allocatePT_TYPE(pt_type_t t);
@@ -53,6 +53,7 @@ pt_t* allocatePT_NUM(int num);
 pt_t* allocatePT_STR(char* str);
 pt_t* allocatePT_ID_LIST(pt_type_t t, id_list_t* ids);
 void addChild(pt_t* parent, pt_t* child);
+void addNext(pt_t* parent, pt_t* next);
 
 // #define _PT_TYPES(V)                                                          \
 //     V(expr)                                                                    \

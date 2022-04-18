@@ -1,6 +1,6 @@
 
 function {
-    list of variables, these are the params
+    params
     scope
 }
 

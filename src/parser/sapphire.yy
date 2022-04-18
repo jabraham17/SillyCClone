@@ -32,10 +32,11 @@
 %token <int_val> NUMBER
 %token ERROR
 
+%left EQUALS
 %left DEQUALS
 %left PLUS MINUS
 
-%type <pt_type> file function_def_list function_def function_name param_def scope var_def statement_list statement statement_plain assign_statement expr primary function_call return_statement if_statement while_statement
+%type <pt_type> file function_def_list function_def function_name param_def scope var_def statement_list statement expr function_call return_statement if_statement while_statement
 %type <id_list_type> id_list
 
 
@@ -52,7 +53,7 @@ function_def_list:
     function_def { $$ = $1; }
     | function_def function_def_list {
         $$ = $1;
-        addChild($$, $2);
+        addNext($$, $2);
     }
     ;
 function_def:
@@ -83,34 +84,35 @@ var_def:
     ;
 statement_list:
     statement { 
-        $$ = allocatePT_TYPE(pt_STMT);
-        addChild($$, $1);
+        $$ = $1;
     }
     | statement statement_list {
-        $$ = allocatePT_TYPE(pt_STMT);
-        addChild($$, $1);
-        addChild($$, $2);
+        $$ = $1;
+        addNext($$, $2);
     }
     ;
 statement:
-    statement_plain SEMICOLON { $$ = $1; }
+    SEMICOLON { $$ = allocatePT_TYPE(pt_NONE); }
+    | scope { $$ = $1; }
+    | expr SEMICOLON { $$ = $1; }
+    | return_statement SEMICOLON { $$ = $1; }
     | if_statement { $$ = $1; }
     | while_statement { $$ = $1; }
     ;
-statement_plain:
-    assign_statement { $$ = $1; }
+expr:
+    NUMBER { $$ = allocatePT_NUM($1); }
+    | ID { $$ = allocatePT_STR($1); }
     | function_call { $$ = $1; }
-    | return_statement { $$ = $1; }
-    ;
-assign_statement:
-    ID EQUALS expr { 
+    | expr EQUALS expr {
         $$ = allocatePT_TYPE(pt_EQUALS);
-        addChild($$, allocatePT_STR($1));
+        addChild($$, $1);
         addChild($$, $3);
     }
-    ;
-expr:
-    primary { $$ = $1; }
+    | expr DEQUALS expr { 
+        $$ = allocatePT_TYPE(pt_DEQUALS);
+        addChild($$, $1);
+        addChild($$, $3);
+    }
     | expr PLUS expr { 
         $$ = allocatePT_TYPE(pt_PLUS);
         addChild($$, $1);
@@ -121,19 +123,9 @@ expr:
         addChild($$, $1);
         addChild($$, $3);
     }
-    | expr DEQUALS expr { 
-        $$ = allocatePT_TYPE(pt_DEQUALS);
-        addChild($$, $1);
-        addChild($$, $3);
-    }
     | LPAREN expr RPAREN {
         $$ = $2;
     }
-    ;
-primary:
-    NUMBER { $$ = allocatePT_NUM($1); }
-    | ID { $$ = allocatePT_STR($1); }
-    | function_call {$$ = $1; }
     ;
 function_call:
     CALL function_name LPAREN RPAREN {
@@ -154,14 +146,14 @@ return_statement:
     }
     ;
 if_statement:
-    IF LPAREN expr RPAREN scope {
+    IF LPAREN expr RPAREN statement {
         $$ = allocatePT_TYPE(pt_IF);
         addChild($$, $3);
         addChild($$, $5);
     }
     ;
 while_statement:
-    WHILE LPAREN expr RPAREN scope {
+    WHILE LPAREN expr RPAREN statement {
         $$ = allocatePT_TYPE(pt_WHILE);
         addChild($$, $3);
         addChild($$, $5);

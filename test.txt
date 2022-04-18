@@ -1,4 +1,4 @@
-
+/*
 FUNC foo;
 PARAM x, y, z;
 {
@@ -10,6 +10,17 @@ PARAM x, y, z;
         x = 0;
     }
     m = 8;
+}*/
+
+FUNC test;
+PARAM x, y, z;
+{
+    VAR a;
+    a= a+b;
+    m = a+b;
+    {
+        x = 7;
+    }
 }
 
 /*
@@ -19,6 +30,13 @@ FUNC bar;
     lamo = 8;
     CALL t();
     CALL m(x, y, z, a);
+    IF (x) RETURN m;
+    
+    IF(m) ;
+    {
+        x = 6;
+    }
     RETURN lmao+7;
 }
 */
+
