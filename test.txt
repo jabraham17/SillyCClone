@@ -1,26 +1,37 @@
-/*
+
 FUNC foo;
 PARAM x, y, z;
+VAR a, b, c, c9;
 {
-    VAR a, b, c, c9;
 
     a = a + b + c;
     x = 7;
-    IF (x +y == m-z-z) {
+    WHILE (x +y == m-z-z) {
         x = 0;
     }
     m = 8;
-}*/
+}
 
 FUNC test;
 PARAM x, y, z;
+VAR a;
 {
-    VAR a;
     a= a+b;
     m = a+b;
-    {
-        x = 7;
+    
+    x = 7;
+
+    IF(x == y) {
+        x = 0;
+        y = 0;
     }
+
+    a = 18;
+    CALL foo();
+
+    y = CALL foo(x,y,z);
+
+   RETURN x==7;
 }
 
 /*

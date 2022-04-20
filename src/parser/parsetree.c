@@ -75,12 +75,3 @@ void addNext(pt_t* parent, pt_t* next) {
     parent->next = next;
 }
 
-// statement_t* createFunctionCallStatement(symbol_t* sym, symbol_list_t*
-// sym_list) {
-//     statement_t* stmt = (statement_t*)malloc(sizeof(statement_t));
-//     stmt->tt = st_FUNCTION_CALL;
-//     stmt->sym = sym;
-//     stmt->expr = NULL;
-//     stmt->scope = NULL;
-//     stmt->sym_list = NULL;
-// }

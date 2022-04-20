@@ -22,7 +22,7 @@ void variableListToDot(char* name, variable_list_t* var_list, FILE* f) {
     }
 }
 
-void scopeToDot(scope_t* scope, FILE* f);
+intptr_t statementsToDot(ast_stmt_t* stmts, FILE* f);
 
 void statementToDot(ast_stmt_t* stmt, FILE* f) {
     if(stmt == NULL)
@@ -40,19 +40,12 @@ void statementToDot(ast_stmt_t* stmt, FILE* f) {
         case ast_DEQUALS:
         case ast_PLUS:
         case ast_MINUS:
-            fprintf(f, "[label=\"%s\"];\n", getASTTypeString(stmt->type));
-            break;
-        case ast_SCOPE:
-            fprintf(f, "[label=\"scope\"];\n");
-            scopeToDot(stmt->data.scope, f);
-            fprintf(
-                f, "stmt_%ld->scope_%ld;\n", (intptr_t)(stmt),
-                (intptr_t)(stmt->data.scope));
-            break;
         case ast_IF:
         case ast_WHILE:
         case ast_RETURN:
         case ast_CALL:
+            fprintf(f, "[label=\"%s\"];\n", getASTTypeString(stmt->type));
+            break;
 
         case ast_NOP:
             fprintf(f, ";\n");
@@ -66,67 +59,32 @@ void statementToDot(ast_stmt_t* stmt, FILE* f) {
         fprintf(
             f, "stmt_%ld->stmt_%ld;\n", (intptr_t)(stmt),
             (intptr_t)(stmt->left));
-        statementToDot(stmt->left, f);
+        statementsToDot(stmt->left, f);
     }
     if(stmt->right != NULL) {
         fprintf(
             f, "stmt_%ld->stmt_%ld;\n", (intptr_t)(stmt),
             (intptr_t)(stmt->right));
-        statementToDot(stmt->right, f);
+        statementsToDot(stmt->right, f);
     }
 }
 
 // returns id of list head
-intptr_t statementsToDot(ast_stmt_list_t* stmts, FILE* f) {
-    intptr_t headId = (intptr_t)stmts->ast_stmt;
+intptr_t statementsToDot(ast_stmt_t* stmts, FILE* f) {
+    intptr_t headId = (intptr_t)stmts;
     intptr_t prevId = 0;
-    ast_stmt_list_t* temp = stmts;
+    ast_stmt_t* temp = stmts;
     while(temp != NULL) {
-        fprintf(f, "subgraph cluster_stmt_%ld {\n", (intptr_t)(temp->ast_stmt));
-        statementToDot(temp->ast_stmt, f);
+        statementToDot(temp, f);
         if(prevId) {
             fprintf(
-                f, "stmt_%ld->stmt_%ld;\n", prevId, (intptr_t)(temp->ast_stmt));
+                f, "stmt_%ld->stmt_%ld[label=next;color=crimson];\n", prevId,
+                (intptr_t)(temp));
         }
-        fprintf(f, "}\n");
-        prevId = (intptr_t)(temp->ast_stmt);
+        prevId = (intptr_t)(temp);
         temp = temp->next;
     }
     return headId;
-}
-
-void scopeToDot(scope_t* scope, FILE* f) {
-
-    fprintf(
-        f, "subgraph cluster_scope_%ld {\nlabel=\"\";rankdir=TB;\n\n",
-        (intptr_t)scope);
-
-    fprintf(f, "scope_%ld[label=\"\",shape=point];\n", (intptr_t)scope);
-
-    variableListToDot("locals", scope->variables, f);
-    fprintf(
-        f, "scope_%ld->varList_%ld;\n", (intptr_t)scope,
-        (intptr_t)scope->variables);
-
-    intptr_t id = statementsToDot(scope->statements, f);
-    if(id) {
-        fprintf(f, "scope_%ld->stmt_%ld;\n", (intptr_t)scope, (intptr_t)id);
-    }
-
-    fprintf(f, "}\n");
-
-    // if it has a parent scopem, make it a child of that
-    if(scope->parent_scope) {
-        fprintf(
-            f, "scope_%ld->scope_%ld;\n", (intptr_t)scope->parent_scope,
-            (intptr_t)scope);
-    }
-    // direct child of function
-    else {
-        fprintf(
-            f, "func_%ld->scope_%ld;\n", (intptr_t)scope->function,
-            (intptr_t)scope);
-    }
 }
 
 void functionToDot(function_t* func, FILE* f) {
@@ -142,8 +100,18 @@ void functionToDot(function_t* func, FILE* f) {
             f, "func_%ld->varList_%ld;\n", (intptr_t)func,
             (intptr_t)func->params);
     }
-
-    scopeToDot(func->scope, f);
+    if(func->locals) {
+        variableListToDot("locals", func->locals, f);
+        fprintf(
+            f, "func_%ld->varList_%ld;\n", (intptr_t)func,
+            (intptr_t)func->locals);
+    }
+    if(func->stmts) {
+        intptr_t id = statementsToDot(func->stmts, f);
+        if(id) {
+            fprintf(f, "func_%ld->stmt_%ld;\n", (intptr_t)(func), (intptr_t)id);
+        }
+    }
 
     fprintf(f, "}\n");
 }

@@ -33,7 +33,7 @@ void _ptToDot(pt_t* pt, FILE* f) {
         case pt_RETURN:
         case pt_FUNCTION_DEF:
         case pt_CALL:
-        case pt_SCOPE: {
+        {
             fprintf(
                 f, "%ld[label=\"%s\"];\n", (intptr_t)pt,
                 getPTTypeString(pt->type));

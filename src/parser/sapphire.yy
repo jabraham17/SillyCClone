@@ -36,7 +36,7 @@
 %left DEQUALS
 %left PLUS MINUS
 
-%type <pt_type> file function_def_list function_def function_name param_def scope var_def statement_list statement expr function_call return_statement if_statement while_statement
+%type <pt_type> file function_def_list function_def function_name param_def var_def statement_list empty_statement_list statement expr function_call return_statement if_statement while_statement
 %type <id_list_type> id_list
 
 
@@ -57,11 +57,12 @@ function_def_list:
     }
     ;
 function_def:
-    FUNC function_name SEMICOLON param_def scope { 
+    FUNC function_name SEMICOLON param_def var_def LCURLY empty_statement_list RCURLY { 
         $$ = allocatePT_TYPE(pt_FUNCTION_DEF);
         addChild($$, $2);
         addChild($$, $4);
         addChild($$, $5);
+        addChild($$, $7);
     }
     ;
 function_name:
@@ -71,16 +72,13 @@ param_def:
     PARAM id_list SEMICOLON { $$ = allocatePT_ID_LIST(pt_PARAM_DEF, $2); }
     | %empty { $$ = allocatePT_TYPE(pt_PARAM_DEF); }
     ;
-scope:
-    LCURLY var_def statement_list RCURLY { 
-        $$ = allocatePT_TYPE(pt_SCOPE);
-        addChild($$, $2);
-        addChild($$, $3);
-    }
-    ;
 var_def:
     VAR id_list SEMICOLON { $$ = allocatePT_ID_LIST(pt_VAR_DEF, $2); }
     | %empty { $$ = allocatePT_TYPE(pt_VAR_DEF); }
+    ;
+empty_statement_list: 
+    statement_list { $$ = $1; }
+    | %empty { $$ = allocatePT_TYPE(pt_NONE); }
     ;
 statement_list:
     statement { 
@@ -92,12 +90,11 @@ statement_list:
     }
     ;
 statement:
-    SEMICOLON { $$ = allocatePT_TYPE(pt_NONE); }
-    | scope { $$ = $1; }
-    | expr SEMICOLON { $$ = $1; }
+    expr SEMICOLON { $$ = $1; }
     | return_statement SEMICOLON { $$ = $1; }
     | if_statement { $$ = $1; }
     | while_statement { $$ = $1; }
+    | SEMICOLON { $$ = allocatePT_TYPE(pt_NONE); }
     ;
 expr:
     NUMBER { $$ = allocatePT_NUM($1); }
@@ -146,17 +143,17 @@ return_statement:
     }
     ;
 if_statement:
-    IF LPAREN expr RPAREN statement {
+    IF LPAREN expr RPAREN LCURLY empty_statement_list RCURLY {
         $$ = allocatePT_TYPE(pt_IF);
         addChild($$, $3);
-        addChild($$, $5);
+        addChild($$, $6);
     }
     ;
 while_statement:
-    WHILE LPAREN expr RPAREN statement {
+    WHILE LPAREN expr RPAREN LCURLY empty_statement_list RCURLY {
         $$ = allocatePT_TYPE(pt_WHILE);
         addChild($$, $3);
-        addChild($$, $5);
+        addChild($$, $6);
     }
     ;
 id_list:

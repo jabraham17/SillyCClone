@@ -20,7 +20,6 @@ id_list_t* getIDNode(char* id, id_list_t* oldList);
     /* functions */                                                            \
     V(FUNCTION_DEF)                                                            \
     V(CALL)                                                                    \
-    V(SCOPE)                                                                   \
     /* semantic char lists */                                                  \
     V(PARAM_DEF)                                                               \
     V(VAR_DEF)                                                                 \

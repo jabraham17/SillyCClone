@@ -4,9 +4,7 @@
 #define _PREDECLARE_STRUCT_TYPE(_name) typedef struct _name _name##_t;
 _PREDECLARE_STRUCT_TYPE(function)
 _PREDECLARE_STRUCT_TYPE(function_list)
-_PREDECLARE_STRUCT_TYPE(scope)
 _PREDECLARE_STRUCT_TYPE(ast_stmt)
-_PREDECLARE_STRUCT_TYPE(ast_stmt_list)
 _PREDECLARE_STRUCT_TYPE(variable)
 _PREDECLARE_STRUCT_TYPE(variable_list)
 #undef _PREDECLARE_STRUCT_TYPE
@@ -21,16 +19,11 @@ _PREDECLARE_STRUCT_TYPE(variable_list)
 struct function {
     char* name;
     variable_list_t* params;
-    scope_t* scope;
+    variable_list_t* locals;
+    ast_stmt_t* stmts;
 };
 _MAKE_LIST_FOR_TYPE(function)
 
-struct scope {
-    scope_t* parent_scope;
-    function_t* function;
-    ast_stmt_list_t* statements;
-    variable_list_t* variables;
-};
 
 #define _AST_TYPES(V)                                                          \
     V(NOP)                                                                     \
@@ -43,8 +36,7 @@ struct scope {
     V(IF)                                                                      \
     V(WHILE)                                                                   \
     V(RETURN)                                                                  \
-    V(CALL)                                                                    \
-    V(SCOPE)
+    V(CALL)                                                                    
 
 typedef enum {
 #define AST_ENUM(_NAME) ast_##_NAME,
@@ -59,16 +51,14 @@ struct ast_stmt {
     union {
         variable_t* variable;
         int num;
-        scope_t* scope;
     } data;
     ast_stmt_t* left;
     ast_stmt_t* right;
+    ast_stmt_t* next;
 };
-_MAKE_LIST_FOR_TYPE(ast_stmt)
 
 struct variable {
     char* name;
-    scope_t* parent_scope;
 };
 _MAKE_LIST_FOR_TYPE(variable)
 
