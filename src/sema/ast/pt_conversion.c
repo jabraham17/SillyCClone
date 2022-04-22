@@ -183,8 +183,7 @@ ast_stmt_t* get_call_stmt(pt_t* pt_call) {
         // head was a dummy node, lets get rid of it
         // and since the dummy is stack allocated, no free!
         stmtVarsHead = stmtVarsHead->left;
-    }
-    else {
+    } else {
         stmtVarsHead = NULL;
     }
 
@@ -258,7 +257,7 @@ get_function(pt_t* pt_name, pt_t* pt_params, pt_t* pt_locals, pt_t* pt_stmts) {
     return func;
 }
 
-function_list_t* pt_to_ast(pt_t* pt) {
+function_list_t* get_functions(pt_t* pt) {
     if(pt == NULL || pt->type != pt_FUNCTION_DEF)
         return NULL;
 
@@ -273,11 +272,18 @@ function_list_t* pt_to_ast(pt_t* pt) {
 
     function_list_t* list = malloc(sizeof(*list));
     list->function = func;
-    list->next = pt_to_ast(pt->next);
+    list->next = get_functions(pt->next);
     list->prev = NULL;
     // if there are more functions, need to link in prev
     if(list->next != NULL)
         list->next->prev = list;
 
     return list;
+}
+
+module_t* pt_to_ast(pt_t* pt) {
+    module_t* module = malloc(sizeof(*module));
+    module->functions = get_functions(pt);
+    module->symbol_table = NULL;
+    return module;
 }

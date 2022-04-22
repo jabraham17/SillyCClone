@@ -62,4 +62,27 @@ struct variable {
 };
 _MAKE_LIST_FOR_TYPE(variable)
 
+
+
+typedef enum {
+    isFunction = 1,
+    isParam = 2,
+    isLocal = 4,
+} symbol_table_entry_flags_t;
+
+typedef struct symbol_table_entry symbol_table_entry_t;
+struct symbol_table_entry {
+    function_t* function_owner;
+    symbol_table_entry_flags_t flags;
+    variable_t* name;
+    symbol_table_entry_t* next;
+    symbol_table_entry_t* prev;
+};
+
+typedef struct module module_t;
+struct module {
+    function_list_t* functions;
+    symbol_table_entry_t* symbol_table;
+};
+
 #endif

@@ -13,3 +13,6 @@ https://www.cs.virginia.edu/~cr4bd/flex-manual/Start-Conditions.html#Start-Condi
 ./bin/sapphire <test.txt | dot -Tpng | open -a Preview.app -f
 
 https://www.gnu.org/software/bison/manual/html_node/Error-Recovery.html
+
+
+./bin/ptviewer -i test.txt | dot -Tpng | open -a Preview.app -f

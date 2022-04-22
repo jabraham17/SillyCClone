@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "sema/pass_manager/pass_manager.h"
 
 void variableListToDot(char* name, variable_list_t* var_list, FILE* f) {
     fprintf(f, "varList_%ld[label=\"%s\"];\n", (intptr_t)var_list, name);
@@ -151,6 +152,13 @@ int main(int argc, char** argv) {
     pt_t* root = parse(inFile);
     fclose(inFile);
 
+
+    module_t* module = pt_to_ast(root);
+
+    //pass_t* p = chainPass(buildPass(PASS_silly_pass), buildPass(PASS_silly_pass2), NULL);
+
+    runPass(module, getPass_all_silly());
+
     FILE* outFile = NULL;
     if(outFileName != NULL) {
         outFile = fopen(outFileName, "w");
@@ -165,7 +173,7 @@ int main(int argc, char** argv) {
 
     fprintf(outFile, "digraph ast {\n");
     fprintf(outFile, "compound=true;\n");
-    function_list_t* functions = pt_to_ast(root);
+    function_list_t* functions = module->functions;
     function_list_t* temp = functions;
     while(temp != NULL) {
         functionToDot(temp->function, outFile);

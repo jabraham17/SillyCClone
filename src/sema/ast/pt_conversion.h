@@ -5,6 +5,6 @@
 #include "ast.h"
 
 //convert parse tree to ast structure
-function_list_t* pt_to_ast(pt_t* pt);
+module_t* pt_to_ast(pt_t* pt);
 
 #endif
