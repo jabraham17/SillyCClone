@@ -33,7 +33,7 @@ clean:
 # $(TARGET): $(OBJECTS) Makefile
 # 	
 
-$(LIB_DIRECTORY)lib%.a: $(OBJECTS) Makefile
+$(LIB_DIRECTORY)%.a: $(OBJECTS) Makefile
 	$(AR) r $@ $(filter-out Makefile, $^)
     $(RANLIB) $@
 
@@ -45,7 +45,7 @@ $(OBJ_PATH)%_a.o: $(SRC_PATH)%.asm Makefile
 	$(AT)mkdir -p $(dir $@)
 	$(AS) -felf $(CONSTANTS) $< -o $@ -MD $(patsubst %.asm,%.d,$<)
 
-%: $(OBJECTS)
-	$(LD) $(OBJECTS) $(LDFLAGS) $(LDFLAGS_FINAL) $(LDLIBS) -o $@
+# %: $(OBJECTS)
+# 	$(LD) $(OBJECTS) $(LDFLAGS) $(LDFLAGS_FINAL) $(LDLIBS) -o $@
 
 -include $(DEPENDS)
