@@ -33,7 +33,7 @@ clean:
 # $(TARGET): $(OBJECTS) Makefile
 # 	
 
-$(LIB_DIRECTORY)%.a: $(OBJECTS) Makefile
+$(LIB_DIRECTORY)lib%.a: $(OBJECTS) Makefile
 	$(AR) r $@ $(filter-out Makefile, $^)
     $(RANLIB) $@
 
