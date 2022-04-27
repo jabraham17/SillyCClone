@@ -7,6 +7,7 @@ OBJECTS=$(C_OBJECTS) $(A_OBJECTS)
 DEPENDS=$(patsubst %.c,%.d,$(C_SOURCES))
 DEPENDS+= $(patsubst %.asm,%_a.d,$(A_SOURCES))
 
+REL_PATH=$(shell realpath --relative-to $(ROOT_PROJECT_DIRECTORY) .)
 
 INCLUDE= -I$(ROOT_PROJECT_DIRECTORY)src
 
@@ -14,22 +15,20 @@ TARGET=$(LIB_DIRECTORY)sema.o
 
 .PHONY: all
 all: $(TARGET)
+	# $(REL_PATH)
 	@:
 
 .PHONY: clean
 clean:
-	@$(RM) $(TARGET) $(DEPENDS) $(OBJECTS)
+	$(AT)$(RM) $(TARGET) $(DEPENDS) $(OBJECTS)
 
 $(TARGET): $(OBJECTS) Makefile
-	@echo "LD $(@F)"
-	@$(LD) $(OBJECTS) $(LDFLAGS) $(LDLIBS) -r -o $@
+	$(LD) $(OBJECTS) $(LDFLAGS) $(LDLIBS) -r -o $@
 
 %.o: %.c Makefile
-	@echo "CC $@"
 	@$(CC) $(CFLAGS) $(DEPENFLAGS) $(INCLUDE) -c $< -o $@
 
 %_a.o: %.asm Makefile
-	@echo "AS $@"
-	@$(AS) -felf $(CONSTANTS) $< -o $@ -MD $(patsubst %.asm,%.d,$<)
+	$(AS) -felf $(CONSTANTS) $< -o $@ -MD $(patsubst %.asm,%.d,$<)
 
 -include $(DEPENDS)

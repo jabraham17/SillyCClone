@@ -8,4 +8,5 @@ char* getASTTypeString(ast_stmt_type_t t) {
         _AST_TYPES(AST_CASE)
 #undef AST_CASE
     }
+    return "";
 }

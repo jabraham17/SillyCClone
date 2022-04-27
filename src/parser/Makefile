@@ -17,37 +17,29 @@ all: $(TARGET)
 
 .PHONY: clean
 clean:
-	@$(RM) $(TARGET) $(DEPENDS) $(OBJECTS) *.temp sapphire_parser.h sapphire.o
+	$(AT)$(RM) $(TARGET) $(DEPENDS) $(OBJECTS) *.temp sapphire_parser.h sapphire.o
 
 $(TARGET): sapphire.o $(OBJECTS) Makefile
-	@echo "LD $(@F)"
-	@$(LD) sapphire.o $(OBJECTS) $(LDFLAGS) $(LDLIBS) -r -o $@
+	$(LD) sapphire.o $(OBJECTS) $(LDFLAGS) $(LDLIBS) -r -o $@
 
 %.o: %.c Makefile
-	@echo "CC $@"
-	@$(CC) $(CFLAGS) $(DEPENFLAGS) $(INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEPENFLAGS) $(INCLUDE) -c $< -o $@
 
 %_a.o: %.asm Makefile
-	@echo "AS $@"
-	@$(AS) -felf $(CONSTANTS) $< -o $@ -MD $(patsubst %.asm,%.d,$<)
+	$(AS) -felf $(CONSTANTS) $< -o $@ -MD $(patsubst %.asm,%.d,$<)
 
 sapphire.o: sapphire.yy sapphire.l Makefile
-	@echo "YACC $@"
 ifeq ($(OS),Linux)
-	@$(YACC) $(YFLAGS) sapphire.yy -o __bison_sapphire.c.temp --defines=sapphire_parser.h
+	$(YACC) $(YFLAGS) sapphire.yy -o __bison_sapphire.c.temp --defines=sapphire_parser.h
 else ifeq ($(OS),Darwin)
-	@$(YACC) $(YFLAGS) sapphire.yy -o __bison_sapphire.c.temp --header=sapphire_parser.h
+	$(YACC) $(YFLAGS) sapphire.yy -o __bison_sapphire.c.temp --header=sapphire_parser.h
 else
 	$(warning Build will likely fail as builds on $(OS) are not fully supported)
-	@$(YACC) $(YFLAGS) sapphire.yy -o __bison_sapphire.c.temp -d
+	$(YACC) $(YFLAGS) sapphire.yy -o __bison_sapphire.c.temp -d
 endif
-	@echo "LEX $@"
-	@$(LEX) $(LFLAGS) -o __flex_sapphire.c.temp sapphire.l
-	@echo "CC $@"
-	@$(CC) -c -x c __bison_sapphire.c.temp -x none -o __bison_sapphire.o.temp
-	@echo "CC $@"
-	@$(CC) -c -x c __flex_sapphire.c.temp -x none -o __flex_sapphire.o.temp
-	@echo "LD $@"
-	@$(LD) __bison_sapphire.o.temp __flex_sapphire.o.temp $(LDFLAGS) $(LDLIBS) -r -o $@
+	$(LEX) $(LFLAGS) -o __flex_sapphire.c.temp sapphire.l
+	$(CC) -c -x c __bison_sapphire.c.temp -x none -o __bison_sapphire.o.temp
+	$(CC) -c -x c __flex_sapphire.c.temp -x none -o __flex_sapphire.o.temp
+	$(LD) __bison_sapphire.o.temp __flex_sapphire.o.temp $(LDFLAGS) $(LDLIBS) -r -o $@
 
 -include $(DEPENDS)

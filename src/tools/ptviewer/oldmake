@@ -10,16 +10,29 @@ OBJECTS=$(C_OBJECTS) $(A_OBJECTS)
 DEPENDS=$(patsubst %.c,%.d,$(C_SOURCES))
 DEPENDS+= $(patsubst %.asm,%_a.d,$(A_SOURCES))
 
-LIBRARIES=sema parser
+REL_PATH=$(shell realpath --relative-to $(ROOT_PROJECT_DIRECTORY) .)/
+SRC_PATH=$(ROOT_PROJECT_DIRECTORY)$(REL_PATH)
+OBJ_PATH= $(OBJ_DIRECTORY)$(REL_PATH)
+OBJECTS:=$(addprefix $(OBJ_PATH),$(OBJECTS))
+DEPENDS:=$(addprefix $(OBJ_PATH),$(DEPENDS))
+
+LIBRARIES=parser
 OBJECTS+= $(patsubst %,$(LIB_DIRECTORY)%.o,$(LIBRARIES))
 
 INCLUDE= -I$(ROOT_PROJECT_DIRECTORY)src
 
-TARGET=$(BIN_DIRECTORY)astviewer
+TARGET=$(BIN_DIRECTORY)ptviewer
 
 .PHONY: all
-all: $(TARGET)
+all: $(OBJ_PATH) $(TARGET)
 	@:
+
+$(OBJ_PATH):
+	$(AT)mkdir -p $@
+
+test:
+	echo $(SRC_PATH)
+	echo $(OBJ_PATH)
 
 .PHONY: clean
 clean:
@@ -28,10 +41,10 @@ clean:
 $(TARGET): $(OBJECTS) Makefile
 	$(LD) $(OBJECTS) $(LDFLAGS) $(LDFLAGS_FINAL) $(LDLIBS) -o $@
 
-%.o: %.c Makefile
+$(OBJ_PATH)%.o: $(SRC_PATH)%.c Makefile
 	$(CC) $(CFLAGS) $(DEPENFLAGS) $(INCLUDE) -c $< -o $@
 
-%_a.o: %.asm Makefile
+$(OBJ_PATH)%_a.o: $(SRC_PATH)%.asm Makefile
 	$(AS) -felf $(CONSTANTS) $< -o $@ -MD $(patsubst %.asm,%.d,$<)
 
 -include $(DEPENDS)

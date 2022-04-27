@@ -13,6 +13,5 @@ tools/astviewer: sema parser
 
 .PHONY: $(SUBDIRS)
 $(SUBDIRS):
-	@echo "make --directory=$@ $(MAKECMDGOALS)"
-	@$(MAKE) --directory=$@ $(MAKECMDGOALS)
+	$(MAKE) -C $@ $(MAKECMDGOALS)
 

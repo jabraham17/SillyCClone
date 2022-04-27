@@ -11,8 +11,9 @@ PASS_TUPLE(silly_pass);
 PASS_TUPLE(silly_pass2);
 PASS_TUPLE(silly_pass3);
 
-COMPOUND_PASS_TUPLE(some_silly, silly_pass, silly_pass2)
-COMPOUND_PASS_TUPLE(all_silly, some_silly, silly_pass3)
+//COMPOUND_PASS_TUPLE(some_silly, silly_pass, silly_pass2)
+//COMPOUND_PASS_TUPLE(all_silly, some_silly, silly_pass3)
+COMPOUND_PASS_TUPLE(all_silly, silly_pass, silly_pass2, silly_pass3)
 
 
 #undef PASS_TUPLE
