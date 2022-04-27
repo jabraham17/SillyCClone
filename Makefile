@@ -48,11 +48,6 @@ map = $(foreach a,$(2),$(call $(1),$(a)))
 $(call map,generate_verbose_call,CC LD YACC LEX AS)
 
 
-test:
-	# $(CC)
-	# $(MAKE)
-	# $(AT)
-
 # clang cant find gcc_s, gcc doesnt compile things correctly
 # clang with rtlib=compiler-rt has problems with relocation
 
@@ -96,7 +91,7 @@ export INCLUDE
 export YFLAGS
 export LFLAGS
 
-export DEPENFLAGS= -MMD -MP
+# export DEPENFLAGS= -MMD -MP
 
 .PHONY: $(TOPTARGETS)
 

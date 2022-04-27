@@ -3,7 +3,7 @@ C_SOURCES=$(wildcard *.c) $(wildcard */*.c) $(wildcard */*/*.c)
 C_OBJECTS=$(patsubst %.c,%.o,$(C_SOURCES))
 A_SOURCES=$(wildcard *.asm) $(wildcard */*.asm) $(wildcard */*/*.asm)
 A_OBJECTS=$(filter-out $(START),$(patsubst %.asm,%_a.o,$(A_SOURCES)))
-OBJECTS=$(C_OBJECTS) $(A_OBJECTS)
+OBJECTS+=$(C_OBJECTS) $(A_OBJECTS)
 DEPENDS=$(patsubst %.c,%.d,$(C_SOURCES))
 DEPENDS+= $(patsubst %.asm,%_a.d,$(A_SOURCES))
 
@@ -30,13 +30,22 @@ test:
 clean:
 	$(AT)$(RM) $(TARGET) $(DEPENDS) $(OBJECTS)
 
-$(TARGET): $(OBJECTS) Makefile
-	$(LD) $(OBJECTS) $(LDFLAGS) $(LDFLAGS_FINAL) $(LDLIBS) -o $@
+# $(TARGET): $(OBJECTS) Makefile
+# 	
+
+$(LIB_DIRECTORY)%.a: $(OBJECTS) Makefile
+	$(AR) r $@ $(filter-out Makefile, $^)
+    $(RANLIB) $@
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.c Makefile
-	$(CC) $(CFLAGS) $(DEPENFLAGS) $(INCLUDE) -c $< -o $@
+	$(AT)mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -MMD -MP -MF $(patsubst %.c,%.d,$<) $(INCLUDE) -c $< -o $@
 
 $(OBJ_PATH)%_a.o: $(SRC_PATH)%.asm Makefile
+	$(AT)mkdir -p $(dir $@)
 	$(AS) -felf $(CONSTANTS) $< -o $@ -MD $(patsubst %.asm,%.d,$<)
+
+%: $(OBJECTS)
+	$(LD) $(OBJECTS) $(LDFLAGS) $(LDFLAGS_FINAL) $(LDLIBS) -o $@
 
 -include $(DEPENDS)

@@ -1,34 +1,8 @@
+TARGET=$(LIB_DIRECTORY)libparser.a
+OBJECTS+= sapphire.o
+-include $(ROOT_PROJECT_DIRECTORY)src/subdir.mk
 
-C_SOURCES=$(wildcard *.c) $(wildcard */*.c) $(wildcard */*/*.c)
-C_OBJECTS=$(patsubst %.c,%.o,$(C_SOURCES))
-A_SOURCES=$(wildcard *.asm) $(wildcard */*.asm) $(wildcard */*/*.asm)
-A_OBJECTS=$(filter-out $(START),$(patsubst %.asm,%_a.o,$(A_SOURCES)))
-OBJECTS=$(C_OBJECTS) $(A_OBJECTS)
-DEPENDS=$(patsubst %.c,%.d,$(C_SOURCES))
-DEPENDS+= $(patsubst %.asm,%_a.d,$(A_SOURCES))
-
-INCLUDE=
-
-TARGET=$(LIB_DIRECTORY)parser.o
-
-.PHONY: all
-all: $(TARGET)
-	@:
-
-.PHONY: clean
-clean:
-	$(AT)$(RM) $(TARGET) $(DEPENDS) $(OBJECTS) *.temp sapphire_parser.h sapphire.o
-
-$(TARGET): sapphire.o $(OBJECTS) Makefile
-	$(LD) sapphire.o $(OBJECTS) $(LDFLAGS) $(LDLIBS) -r -o $@
-
-%.o: %.c Makefile
-	$(CC) $(CFLAGS) $(DEPENFLAGS) $(INCLUDE) -c $< -o $@
-
-%_a.o: %.asm Makefile
-	$(AS) -felf $(CONSTANTS) $< -o $@ -MD $(patsubst %.asm,%.d,$<)
-
-sapphire.o: sapphire.yy sapphire.l Makefile
+$(OBJ_PATH)sapphire.o: $(SRC_PATH)sapphire.yy sapphire.l Makefile
 ifeq ($(OS),Linux)
 	$(YACC) $(YFLAGS) sapphire.yy -o __bison_sapphire.c.temp --defines=sapphire_parser.h
 else ifeq ($(OS),Darwin)
@@ -42,4 +16,3 @@ endif
 	$(CC) -c -x c __flex_sapphire.c.temp -x none -o __flex_sapphire.o.temp
 	$(LD) __bison_sapphire.o.temp __flex_sapphire.o.temp $(LDFLAGS) $(LDLIBS) -r -o $@
 
--include $(DEPENDS)
