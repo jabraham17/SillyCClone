@@ -117,19 +117,24 @@ void functionToDot(function_t* func, FILE* f) {
     fprintf(f, "}\n");
 }
 
+int _debug_mode = 0;
+
 int main(int argc, char** argv) {
 
     char* inFileName = NULL;
     char* outFileName = NULL;
     char c;
     opterr = 1;
-    while((c = getopt(argc, argv, "i:o:")) != -1) {
+    while((c = getopt(argc, argv, "i:o:d")) != -1) {
         switch(c) {
             case 'i':
                 inFileName = optarg;
                 break;
             case 'o':
                 outFileName = optarg;
+                break;
+            case 'd':
+                _debug_mode = 1;
                 break;
             case '?':
             default:
@@ -157,7 +162,7 @@ int main(int argc, char** argv) {
 
     //pass_t* p = chainPass(buildPass(PASS_silly_pass), buildPass(PASS_silly_pass2), NULL);
 
-    runPass(module, getPass_all_silly());
+    runPass(module, buildPass(PASS_all_silly));
 
     FILE* outFile = NULL;
     if(outFileName != NULL) {

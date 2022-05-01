@@ -1,6 +1,7 @@
 #ifndef _SEMA_PASS_MANAGER_PASS_MANAGER_H_
 #define _SEMA_PASS_MANAGER_PASS_MANAGER_H_
 
+#include "common/debug.h"
 #include "sema/ast/ast.h"
 
 // function to transform and optional module arg
@@ -22,13 +23,13 @@ void runPass(module_t* module, pass_t* pass);
         __attribute((__unused__)) function_t** func_ptr,                       \
         __attribute((__unused__)) module_t* module)
 
+#define LOG_PASS(passname, funcptr) DEBUG_SECTION(fprintf(stderr, "Running "#passname" on %s\n", (funcptr)->name));
+
 #define PASS_TUPLE(funcname) DEFINE_PASS(funcname);
 #include "passes.inc"
 #undef PASS_TUPLE
 
-#define COMPOUND_PASS_TUPLE(funcname, ...)                                     \
-    DEFINE_PASS(funcname);                                                     \
-    pass_t* getPass_##funcname();
+#define COMPOUND_PASS_TUPLE(funcname, ...) DEFINE_PASS(funcname);
 #include "passes.inc"
 #undef COMPOUND_PASS_TUPLE
 
