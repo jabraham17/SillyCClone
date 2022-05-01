@@ -16,11 +16,15 @@ export CC=/usr/bin/gcc
 export LD:=$(CC)
 export YACC=/usr/bin/bison
 export LEX=/usr/bin/flex
+export AR=/usr/bin/ar
+export RANLIB=/usr/bin/ranlib
 else ifeq ($(OS),Darwin)
 export CC=/usr/local/opt/llvm/bin/clang
 export LD:=$(CC)
 export YACC=/usr/local/opt/bison/bin/bison
 export LEX=/usr/local/opt/flex/bin/flex
+export AR=/usr/local/opt/llvm/bin/llvm-ar
+export RANLIB=/usr/local/opt/llvm/bin/llvm-ranlib
 else
 $(error Unsupported build on $(OS))
 endif
@@ -45,7 +49,7 @@ endef
 
 map = $(foreach a,$(2),$(call $(1),$(a)))
 
-$(call map,generate_verbose_call,CC LD YACC LEX AS)
+$(call map,generate_verbose_call,CC LD YACC LEX AR RANLIB)
 
 
 # clang cant find gcc_s, gcc doesnt compile things correctly
@@ -90,8 +94,6 @@ export LDFLAGS_FINAL
 export INCLUDE
 export YFLAGS
 export LFLAGS
-
-# export DEPENFLAGS= -MMD -MP
 
 .PHONY: $(TOPTARGETS)
 

@@ -3,7 +3,7 @@
     #include <stdint.h>
     #include <stdlib.h>
     #include <string.h>
-    #include "sapphire_parser.h"
+    #include "sapphire.yy.h"
     size_t line_num = 1;
     extern int yylex();
 %}

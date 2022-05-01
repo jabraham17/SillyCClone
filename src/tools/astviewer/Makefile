@@ -1,5 +1,3 @@
--include $(ROOT_PROJECT_DIRECTORY)src/subdir.mk
-
 LIBRARIES=sema parser
-OBJECTS+= $(patsubst %,$(LIB_DIRECTORY)%.o,$(LIBRARIES))
 TARGET=$(BIN_DIRECTORY)astviewer
+-include $(ROOT_PROJECT_DIRECTORY)src/executable.mk
