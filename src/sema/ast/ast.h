@@ -5,8 +5,8 @@
 _PREDECLARE_STRUCT_TYPE(function)
 _PREDECLARE_STRUCT_TYPE(function_list)
 _PREDECLARE_STRUCT_TYPE(ast_stmt)
-_PREDECLARE_STRUCT_TYPE(variable)
-_PREDECLARE_STRUCT_TYPE(variable_list)
+_PREDECLARE_STRUCT_TYPE(symbol)
+_PREDECLARE_STRUCT_TYPE(symbol_list)
 #undef _PREDECLARE_STRUCT_TYPE
 
 #define _MAKE_LIST_FOR_TYPE(_name)                                             \
@@ -17,9 +17,9 @@ _PREDECLARE_STRUCT_TYPE(variable_list)
     };
 
 struct function {
-    char* name;
-    variable_list_t* params;
-    variable_list_t* locals;
+    symbol_t* symbol;
+    symbol_list_t* params;
+    symbol_list_t* locals;
     ast_stmt_t* stmts;
 };
 _MAKE_LIST_FOR_TYPE(function)
@@ -28,7 +28,7 @@ _MAKE_LIST_FOR_TYPE(function)
 #define _AST_TYPES(V)                                                          \
     V(NOP)                                                                     \
     V(NUMBER)                                                                  \
-    V(VARIABLE)                                                                \
+    V(SYMBOL)                                                                \
     V(EQUALS)                                                                  \
     V(DEQUALS)                                                                 \
     V(PLUS)                                                                    \
@@ -49,7 +49,7 @@ char* getASTTypeString(ast_stmt_type_t t);
 struct ast_stmt {
     ast_stmt_type_t type;
     union {
-        variable_t* variable;
+        symbol_t* symbol;
         int num;
     } data;
     ast_stmt_t* left;
@@ -57,24 +57,24 @@ struct ast_stmt {
     ast_stmt_t* next;
 };
 
-struct variable {
-    char* name;
-};
-_MAKE_LIST_FOR_TYPE(variable)
-
-
 
 typedef enum {
-    isFunction = 1,
-    isParam = 2,
-    isLocal = 4,
-} symbol_table_entry_flags_t;
+    st_ERROR = 0,
+    st_FUNCTION = 1,
+    st_PARAM = 2,
+    st_LOCAL = 4,
+} symbol_flags_t;
+struct symbol {
+    char* name;
+    symbol_flags_t flags;
+};
+_MAKE_LIST_FOR_TYPE(symbol)
+
 
 typedef struct symbol_table_entry symbol_table_entry_t;
 struct symbol_table_entry {
     function_t* function_owner;
-    symbol_table_entry_flags_t flags;
-    variable_t* name;
+    symbol_t* symbol;
     symbol_table_entry_t* next;
     symbol_table_entry_t* prev;
 };
@@ -84,5 +84,8 @@ struct module {
     function_list_t* functions;
     symbol_table_entry_t* symbol_table;
 };
+symbol_table_entry_t* hasSymbol(module_t* module, function_t* function, char* name);
+symbol_table_entry_t* insertSymbol(module_t* module, function_t* function, char* name, symbol_flags_t flags);
+void propogateSymbol(function_t* function, symbol_table_entry_t* ste);
 
 #endif

@@ -4,31 +4,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-variable_list_t* get_var_list(pt_t* pt_var_list) {
+symbol_list_t* get_sym_list(pt_t* pt_sym_list) {
     assert(
-        pt_var_list != NULL &&
-        (pt_var_list->type == pt_PARAM_DEF || pt_var_list->type == pt_VAR_DEF ||
-         pt_var_list->type == pt_PARAM_LIST));
-    variable_list_t dummy;
-    variable_list_t* head = &dummy;
+        pt_sym_list != NULL &&
+        (pt_sym_list->type == pt_PARAM_DEF || pt_sym_list->type == pt_VAR_DEF ||
+         pt_sym_list->type == pt_PARAM_LIST));
+    symbol_list_t dummy;
+    symbol_list_t* head = &dummy;
     head->next = NULL;
     head->prev = NULL;
 
-    variable_list_t* temp = head;
-    char** strs = pt_var_list->data.ids;
+    symbol_list_t* temp = head;
+    char** strs = pt_sym_list->data.ids;
     size_t idx = 0;
     while(strs != NULL && strs[idx] != NULL) {
 
         // add new list element to end
-        variable_list_t* newList = malloc(sizeof(*newList));
+        symbol_list_t* newList = malloc(sizeof(*newList));
         temp->next = newList;
         newList->prev = temp;
         newList->next = NULL;
         temp = newList;
 
-        // add variable to the new list element
-        temp->variable = malloc(sizeof(*(temp->variable)));
-        temp->variable->name = strs[idx];
+        // add symbol to the new list element
+        temp->symbol = malloc(sizeof(*(temp->symbol)));
+        temp->symbol->name = strs[idx];
+        temp->symbol->flags = st_ERROR;
 
         idx++;
     }
@@ -77,13 +78,14 @@ int is_pt_of_type(pt_type_t type, ...) {
 ast_stmt_t* get_str(pt_t* pt_str) {
     assert(pt_str != NULL && pt_str->type == pt_STR);
     ast_stmt_t* expr = malloc(sizeof(*expr));
-    expr->type = ast_VARIABLE;
+    expr->type = ast_SYMBOL;
     expr->left = NULL;
     expr->right = NULL;
     expr->next = NULL;
-    // create dummy variable
-    expr->data.variable = malloc(sizeof(*expr->data.variable));
-    expr->data.variable->name = pt_str->data.str;
+    // create dummy symbol
+    expr->data.symbol = malloc(sizeof(*expr->data.symbol));
+    expr->data.symbol->name = pt_str->data.str;
+    expr->data.symbol->flags = st_ERROR;
 
     return expr;
 }
@@ -159,23 +161,23 @@ ast_stmt_t* get_call_stmt(pt_t* pt_call) {
     call_stmt->right = NULL;
     call_stmt->next = NULL;
 
-    variable_list_t* vars = get_var_list(pt_call->children[1]);
+    symbol_list_t* syms = get_sym_list(pt_call->children[1]);
     ast_stmt_t dummy;
     ast_stmt_t* stmtVarsHead = &dummy;
     stmtVarsHead->left = NULL;
     ast_stmt_t* stmtVars = stmtVarsHead;
     // use left child as 'next' for stmtVars
-    while(vars != NULL) {
+    while(syms != NULL) {
         stmtVars->left = malloc(sizeof(*stmtVars));
-        stmtVars->left->type = ast_VARIABLE;
+        stmtVars->left->type = ast_SYMBOL;
         stmtVars->left->left = NULL;
         stmtVars->left->right = NULL;
         stmtVars->left->next = NULL;
 
-        // copy pver var
-        stmtVars->left->data.variable = vars->variable;
+        // copy pver sym
+        stmtVars->left->data.symbol = syms->symbol;
 
-        vars = vars->next;
+        syms = syms->next;
         stmtVars = stmtVars->left;
     }
 
@@ -249,9 +251,14 @@ get_function(pt_t* pt_name, pt_t* pt_params, pt_t* pt_locals, pt_t* pt_stmts) {
     assert(pt_stmts != NULL);
 
     function_t* func = malloc(sizeof(*func));
-    func->name = pt_name->data.str;
-    func->params = get_var_list(pt_params);
-    func->locals = get_var_list(pt_locals);
+
+    symbol_t* name = malloc(sizeof(*name));
+    name->name = pt_name->data.str;
+    name->flags = st_ERROR;
+    func->symbol = name;
+    
+    func->params = get_sym_list(pt_params);
+    func->locals = get_sym_list(pt_locals);
     func->stmts = get_stmts(pt_stmts);
 
     return func;

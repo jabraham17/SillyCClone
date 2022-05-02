@@ -32,6 +32,10 @@ $(OBJ_PATH)%.o: $(SRC_PATH)%.c Makefile
 	$(AT)mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -MMD -MP -MF $(patsubst $(SRC_PATH)%.c,$(OBJ_PATH)%.d,$<) $(INCLUDE) -c $< -o $@
 
+# $(OBJ_PATH)%.E: $(SRC_PATH)%.c Makefile
+# 	$(AT)mkdir -p $(dir $@)
+# 	$(CC) $(CFLAGS) -E -MMD -MP -MF $(patsubst $(SRC_PATH)%.c,$(OBJ_PATH)%.d,$<) $(INCLUDE) -c $< -o $@
+
 $(OBJ_PATH)%_a.o: $(SRC_PATH)%.asm Makefile
 	$(AT)mkdir -p $(dir $@)
 	$(AS) -felf $(CONSTANTS) $< -o $@ -MD $(patsubst $(SRC_PATH)%.asm,$(OBJ_PATH)%.d,$<)

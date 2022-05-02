@@ -1,11 +1,14 @@
 #ifndef _IR_IR_H_
 #define _IR_IR_H_
 
+#include "src/sema/ast/ast.h"
+
 #define _PREDECLARE_STRUCT_TYPE(_name) typedef struct _name _name##_t;
 _PREDECLARE_STRUCT_TYPE(ir_function)
 _PREDECLARE_STRUCT_TYPE(ir_function_list)
 _PREDECLARE_STRUCT_TYPE(ir_operand)
 _PREDECLARE_STRUCT_TYPE(ir_instruction)
+_PREDECLARE_STRUCT_TYPE(ir_register)
 #undef _PREDECLARE_STRUCT_TYPE
 
 #define _MAKE_LIST_FOR_TYPE(_name)                                             \
@@ -33,16 +36,16 @@ typedef enum {
     ir_JMP,
 } ir_opcode_t;
 
-typedef unsigned long address_t;
+typedef unsigned long vregister_t;
 typedef enum {
-    ir_ADDRESS,
+    ir_VIRTUAL_REGISTER,
     ir_JMP_TARGET,
 } ir_operand_type_t;
 
 struct ir_operand {
     ir_operand_type_t type;
     union {
-        address_t address;
+        vregister_t vregister;
         ir_instruction_t* target;
     };
 };

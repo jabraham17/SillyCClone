@@ -20,16 +20,20 @@ extern int _debug_mode;
 
 #if defined(DEBUG) && DEBUG == 1
     #include <stdio.h>
+    #include <string.h>
+
+    #define GET_REL_FILE() ((strstr(__FILE__, ROOT_PROJECT_DIRECTORY))+strlen(ROOT_PROJECT_DIRECTORY))
+
     // MUST be defined in one line so __LINE__ works right
     // clang-format off
-    #define DEBUG_LOG_FP(msg, fp) do { if(_debug_mode) fprintf(fp, "%s:%s:%d: %s", __FILE__, __func__, __LINE__, msg); } while(0)
+    #define DEBUG_LOG_FP(fp, msg, ...) do { if(_debug_mode) fprintf(fp, "%s:%s:%d: "msg, GET_REL_FILE(), __func__, __LINE__, __VA_ARGS__); } while(0)
     // clang-format on
 #else
-    #define DEBUG_LOG_FP(msg, fp)                                              \
+    #define DEBUG_LOG_FP(fp, msg, ..)                                              \
         do {                                                                   \
         } while(0)
 #endif
-#define DEBUG_LOG(msg) DEBUG_LOG_FP(msg, stderr)
+#define DEBUG_LOG(msg, ...) DEBUG_LOG_FP(stderr, msg, __VA_ARGS__)
 
 #endif
 

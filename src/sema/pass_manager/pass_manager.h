@@ -23,7 +23,7 @@ void runPass(module_t* module, pass_t* pass);
         __attribute((__unused__)) function_t** func_ptr,                       \
         __attribute((__unused__)) module_t* module)
 
-#define LOG_PASS(passname, funcptr) DEBUG_SECTION(fprintf(stderr, "Running "#passname" on %s\n", (funcptr)->name));
+#define LOG_PASS(passname, funcptr) DEBUG_SECTION(fprintf(stderr, "Running "#passname" on %s\n", (funcptr)->symbol->name));
 
 #define PASS_TUPLE(funcname) DEFINE_PASS(funcname);
 #include "passes.inc"

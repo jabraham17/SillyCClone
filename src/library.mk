@@ -1,4 +1,4 @@
 -include $(ROOT_PROJECT_DIRECTORY)src/sources.mk
-$(TARGET): $(OBJECTS) Makefile
+$(TARGET): $(OBJECTS) $(LIBRARIES_FILE_NAMES) Makefile
 	$(AR) rcs $@ $(OBJECTS)
 	$(RANLIB) $@

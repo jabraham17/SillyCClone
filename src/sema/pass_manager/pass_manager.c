@@ -39,7 +39,7 @@ void runPass(module_t* module, pass_t* pass) {
         runPass(module, pass->next);
 }
 
-#define RUN_PASS(funcname) runPass(module, buildPass(PASS_##funcname));
+#define RUN_PASS(funcname) buildPass(PASS_##funcname)->func_pass(func_ptr, module);
 #define COMPOUND_PASS_TUPLE(funcname, ...)                                     \
     DEFINE_PASS(funcname) { EVAL(MAP(RUN_PASS, __VA_ARGS__)) }
 #include "passes.inc"

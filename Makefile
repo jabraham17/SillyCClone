@@ -66,6 +66,7 @@ export EXTENSION=c
 
 ifeq ($(DEBUG),1)
 override CFLAGS+= -DDEBUG=1 -g -O0
+override CFLAGS+= -DROOT_PROJECT_DIRECTORY="\"$(ROOT_PROJECT_DIRECTORY)\""
 else
 override CFLAGS+= -O3
 endif
@@ -73,6 +74,7 @@ endif
 override CFLAGS+= -Wall -Wextra
 override CFLAGS+= -masm=intel
 override CFLAGS+= -std=c11
+override CFLAGS+= -D_XOPEN_SOURCE=700
 override ASFLAGS+=
 override LDFLAGS+=
 override LDFLAGS_FINAL+=

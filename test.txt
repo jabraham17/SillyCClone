@@ -1,7 +1,7 @@
 
 FUNC foo;
 PARAM x, y, z;
-VAR a, b, c, c9;
+VAR a, b, c, c9, m;
 {
 
     a = a + b + c;
@@ -10,11 +10,14 @@ VAR a, b, c, c9;
         x = 0;
     }
     m = 8;
+    IF(m==0) {
+        CALL foo();
+    }
 }
 
 FUNC test;
 PARAM x, y, z;
-VAR a;
+VAR a, b, m;
 {
     a= a+b;
     m = a+b;
