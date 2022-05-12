@@ -42,8 +42,12 @@ else
 export AT=
 endif
 
+define make_rel_to_root
+$(shell realpath --relative-to $(ROOT_PROJECT_DIRECTORY) $1)
+endef
+
 define _generate_verbose_call
-$1_0 = @echo "$1 $$$$@"; $($1)
+$1_0 = @printf "%s %s\n" $1 $$$$(shell sed s%$(ROOT_PROJECT_DIRECTORY)%% <<< $$$$@); $($1)
 $1_1 = $($1)
 export $1 = $$($1_$(VERBOSE))
 endef
@@ -54,7 +58,6 @@ endef
 map = $(foreach a,$(2),$(call $(1),$(a)))
 
 $(call map,generate_verbose_call,CC LD YACC LEX AR RANLIB)
-
 
 # clang cant find gcc_s, gcc doesnt compile things correctly
 # clang with rtlib=compiler-rt has problems with relocation
