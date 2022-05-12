@@ -142,7 +142,7 @@ ir_instruction_t* get_ir_instruction(ast_stmt_t* stmt, ir_memorymap_t* mm) {
             if(stmt->type == ast_WHILE) {
                 ir_operand_t* jb_trgt = ir_build_operand_target(inst);
                 ir_instruction_t* jmp_back_inst =
-                     ir_build_instruction(ir_JMP, jb_trgt, NULL);
+                    ir_build_instruction(ir_JMP, jb_trgt, NULL);
                 DL_CONCAT_OR_APPEND(inst, jmp_back_inst);
             }
 
@@ -163,15 +163,40 @@ ir_instruction_t* get_ir_instruction(ast_stmt_t* stmt, ir_memorymap_t* mm) {
             break;
         }
         case ast_CALL: {
-            // TODO: result, target func, operands
-            // should push a return address to the stack
-            // this should be an operands
-            // but how do we know the address of other functions
-            // make first instruction of function a nop? that is the symbol of
-            // the function means the memmap would need to be exapanded to hold
-            // all function memory
 
-            // for now fall through
+            ir_operand_t* res_oper =
+                ir_build_operand_vregister(ir_get_temp_irreg(mm));
+            ir_operand_t* func_oper =
+                ir_build_operand_call_temp(stmt->left->data.symbol->name);
+
+            unsigned int noperands =
+                2; // always at least 2 operands for result and func
+            ast_stmt_t* ast_operands = stmt->right;
+            // all operands are pure symbols as a list of left children
+            while(ast_operands != NULL) {
+                noperands++;
+                ast_operands = ast_operands->left;
+            }
+
+            ir_operand_t** opers = ir_build_operands(noperands);
+            opers[0] = res_oper;
+            opers[1] = func_oper;
+            ast_operands = stmt->right; // reset ast operands to start
+            unsigned int i = 2;
+            while(i < noperands && ast_operands != NULL) {
+                opers[i] = ir_build_operand_vregister(ir_get_irreg(
+                    mm,
+                    ast_operands->data.symbol)); // TODO: current implementaiton
+                                                 // only allows for symbols
+                i++;
+                ast_operands = ast_operands->left;
+            }
+
+            ir_instruction_t* call_inst =
+                ir_build_instruction_with_operands(ir_CALL, opers);
+            DL_CONCAT_OR_APPEND(inst, call_inst);
+
+            break;
         }
         case ast_NOP: {
             ir_instruction_t* dummy = ir_build_instruction(ir_NOP, NULL);
@@ -218,16 +243,46 @@ ir_function_t* get_ir_function(function_t* function) {
     return ir_func;
 }
 
+void fixup_ir_call_inst(ir_instruction_t* inst, ir_function_list_t* functions) {
+    assert(inst->opcode == ir_CALL && inst->operands[1]->type == ir_CALL_TARGET);
+    char* call_name = inst->operands[1]->function->name;
+    int fixed = 1;
+    ir_function_list_t* function = NULL;
+    DL_FOREACH(functions, function) {
+        if(strcmp(call_name, function->ir_function->name) == 0) {
+            inst->operands[1]->function = function->ir_function;
+            fixed = 1;
+            break;
+        }
+    }
+    if(!fixed) {
+        fprintf(stderr, "Invalid function call, likely missed a semantic check\n");
+        exit(1);
+    }
+}
+
 ir_function_list_t* ast_to_ir(module_t* module) {
     function_list_t* funcs = NULL;
     ir_function_list_t* ir_funcs = NULL;
     DL_FOREACH(module->functions, funcs) {
         ir_function_list_t* new_elm = malloc(sizeof(*new_elm));
         new_elm->ir_function = get_ir_function(funcs->function);
-        ;
+
         new_elm->next = NULL;
         new_elm->prev = NULL;
         DL_APPEND(ir_funcs, new_elm);
     }
+
+    // resolve function calls to the actual functions
+    ir_function_list_t* ir_func = NULL;
+    DL_FOREACH(ir_funcs, ir_func) {
+        ir_instruction_t* inst = NULL;
+        DL_FOREACH(ir_func->ir_function->ir, inst) {
+            if(inst->opcode == ir_CALL) {
+                fixup_ir_call_inst(inst, ir_funcs);
+            }
+        }
+    }
+
     return ir_funcs;
 }

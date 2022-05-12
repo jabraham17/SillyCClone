@@ -34,13 +34,23 @@ ir_operand_t* ir_build_operand_target(ir_instruction_t* target) {
     target->isJmpTrgt = 1;
     return oper;
 }
+ir_operand_t* ir_build_operand_call_temp(char* name) {
+    ir_operand_t* oper = malloc(sizeof(*oper));
+    oper->type = ir_CALL_TARGET;
+
+    ir_function_t* temp = malloc(sizeof(*temp));
+    temp->name = name; // no need for dup, as the dummy will be replaced soon
+    temp->ir = NULL;
+    temp->mm = NULL;
+    oper->function = temp;
+    return oper;
+}
 
 ir_operand_t** vir_build_operands(unsigned int noperands, va_list args) {
-    ir_operand_t** operands = malloc((noperands+1) * sizeof(*operands));
+    ir_operand_t** operands = ir_alloc_operands(noperands);
     for(size_t i = 0; i < noperands; i++) {
         operands[i] = va_arg(args, ir_operand_t*);
     }
-    operands[noperands] = NULL; // last elm NULL
     return operands;
 }
 
@@ -78,6 +88,11 @@ ir_operand_t** ir_build_operands(unsigned int noperands, ...) {
     va_start(args, noperands);
     ir_operand_t** operands = vir_build_operands(noperands, args);
     va_end(args);
+    return operands;
+}
+ir_operand_t** ir_alloc_operands(unsigned int noperands) {
+    ir_operand_t** operands = malloc((noperands+1) * sizeof(*operands));
+    operands[noperands] = NULL; // last elm NULL
     return operands;
 }
 

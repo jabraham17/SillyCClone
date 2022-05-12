@@ -67,6 +67,7 @@ typedef enum {
     ir_VIRTUAL_REGISTER,
     ir_IMMEDIATE,
     ir_JMP_TARGET,
+    ir_CALL_TARGET,
 } ir_operand_type_t;
 
 struct ir_operand {
@@ -75,11 +76,13 @@ struct ir_operand {
         ir_register_t* vregister;
         long immediate;
         ir_instruction_t* target;
+        ir_function_t* function;
     };
 };
 ir_operand_t* ir_build_operand_vregister(ir_register_t* vregister);
 ir_operand_t* ir_build_operand_immediate(long immediate);
 ir_operand_t* ir_build_operand_target(ir_instruction_t* target);
+ir_operand_t* ir_build_operand_call_temp(char* name);
 
 struct ir_instruction {
     ir_opcode_t opcode;
@@ -93,6 +96,7 @@ ir_instruction_t*
 ir_build_instruction_with_operands(ir_opcode_t opcode, ir_operand_t** operands);
 ir_operand_t**
 ir_build_operands(unsigned int noperands, ...);
+ir_operand_t** ir_alloc_operands(unsigned int noperands);
 // destination is always first operand
 
 struct ir_register {

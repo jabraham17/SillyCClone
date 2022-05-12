@@ -9,14 +9,14 @@ VAR a, b, c, c9, m;
         x = 0;
     }
     m = 8;
-    /*IF(m==0) {
-        // CALL foo();
+    IF(m==0) {
+        CALL foo();
         m = 1;
-    }*/
+    }
     RETURN m;
 }
 
-/*
+
 FUNC test;
 PARAM x, y, z;
 VAR a, b, m;
@@ -29,14 +29,14 @@ VAR a, b, m;
 
     IF(x == y) {
         x = 0;
-        //y = 0;
+        y = 0;
     }
 
     a = 18;
-    //CALL foo();
+    CALL foo();
 
-    //y = CALL foo(x,y,z);
+    y = CALL foo(x,y,z);
 
    RETURN x==7;
 }
-*/
+
