@@ -17,6 +17,16 @@ VAR a, b, c, c9, m;
 }
 
 
+FUNC main;
+VAR a, b, c, d;
+{
+    a = 2;
+    b = 5;
+    c = 9;
+    d = a + c + b;
+    PRINT d;
+}
+
 FUNC test;
 PARAM x, y, z;
 VAR a, b, m;
@@ -39,4 +49,6 @@ VAR a, b, m;
 
    RETURN x==7;
 }
+
+
 
