@@ -12,41 +12,55 @@
 #include <string.h>
 #include <unistd.h>
 
-void dump_instruction_plain(FILE* fp, ir_instruction_t* inst);
+// iterate to begining by counting moving prev point until prev->next is NULL
+// not terrible efficient, but it works
+int get_inst_idx(ir_instruction_t* inst) {
+    int count = 0;
+    ir_instruction_t* temp = inst;
+    while(temp->prev->next != NULL) {
+        count++;
+        temp = temp->prev;
+    }
+    return count;
+}
+
 void dump_operand(FILE* fp, ir_operand_t* oper) {
     switch(oper->type) {
         case ir_IMMEDIATE: fprintf(fp, "%-6ld", oper->immediate); break;
         case ir_VIRTUAL_REGISTER:
-            fprintf(fp, "vr%-4ld", oper->vregister->reg);
+            fprintf(fp, "%%%-5ld", oper->vregister->reg);
             break;
         case ir_JMP_TARGET:
-            fprintf(fp, "JTRGT [");
-            dump_instruction_plain(fp, oper->target);
-            fprintf(fp, "]");
+            fprintf(fp, "@%-5d", get_inst_idx(oper->target));
+            break;
+        case ir_CALL_TARGET:
+            fprintf(fp, "@%-5s", oper->function->name);
             break;
         default: fprintf(fp, "UNKWN ");
     }
 }
-void dump_instruction_plain(FILE* fp, ir_instruction_t* inst) {
+
+void dump_instruction(FILE* fp, ir_instruction_t* inst) {
+    if(!inst->isJmpTrgt) fprintf(fp, "    ");
+    else fprintf(fp, "%2d: ", get_inst_idx(inst));
+
     fprintf(fp, "%-6s", getIROpcodeString(inst->opcode));
     for(int i = 0; inst->operands[i] != NULL; i++) {
         dump_operand(fp, inst->operands[i]);
     }
-}
-void dump_instruction(FILE* fp, ir_instruction_t* inst) {
-    fprintf(fp, "%4s", inst->isJmpTrgt ? ">" : "");
-    dump_instruction_plain(fp, inst);
     fprintf(fp, "\n");
 }
 void dump_function(FILE* fp, ir_function_t* func) {
     fprintf(fp, "FUNC %s:\n", func->name);
     ir_instruction_t* elm;
-    DL_FOREACH(func->ir, elm) { dump_instruction(fp, elm); }
+    DL_FOREACH(func->ir, elm) {
+        dump_instruction(fp, elm);
+    }
 }
 
 void dump_symbol(FILE* fp, ir_register_t* reg) {
     char* symName = reg->symbol ? reg->symbol->name : "temp";
-    fprintf(fp, "    vr%-4ld = %s\n", reg->reg, symName);
+    fprintf(fp, "    %%%-5ld = %s\n", reg->reg, symName);
 }
 
 void dump_symbols(FILE* fp, ir_function_t* func) {

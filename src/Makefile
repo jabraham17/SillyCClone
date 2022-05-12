@@ -12,7 +12,7 @@ ir: sema parser
 tools/ptviewer: parser
 tools/astviewer: sema parser
 tools/irdump: ir sema parser
-# tools/interp: ir sema parser
+tools/interp: ir sema parser
 
 .PHONY: $(SUBDIRS)
 $(SUBDIRS):
