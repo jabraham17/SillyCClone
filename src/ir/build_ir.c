@@ -140,13 +140,9 @@ ir_instruction_t* get_ir_instruction(ast_stmt_t* stmt, ir_memorymap_t* mm) {
 
             // if its a while loop, need to add the return to the loop top
             if(stmt->type == ast_WHILE) {
-                ir_operand_t* jb_trgt = malloc(sizeof(*jb_trgt));
-                jb_trgt->type = ir_JMP_TARGET;
-                free(jb_trgt);
-                // jb_trgt->target = inst;
-                //ir_build_operand_target(inst);
+                ir_operand_t* jb_trgt = ir_build_operand_target(inst);
                 ir_instruction_t* jmp_back_inst =
-                     ir_build_instruction(ir_JMP, NULL);
+                     ir_build_instruction(ir_JMP, jb_trgt, NULL);
                 DL_CONCAT_OR_APPEND(inst, jmp_back_inst);
             }
 

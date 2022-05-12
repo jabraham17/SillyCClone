@@ -36,10 +36,11 @@ ir_operand_t* ir_build_operand_target(ir_instruction_t* target) {
 }
 
 ir_operand_t** vir_build_operands(unsigned int noperands, va_list args) {
-    ir_operand_t** operands = malloc(noperands * sizeof(*operands));
+    ir_operand_t** operands = malloc((noperands+1) * sizeof(*operands));
     for(size_t i = 0; i < noperands; i++) {
         operands[i] = va_arg(args, ir_operand_t*);
     }
+    operands[noperands] = NULL; // last elm NULL
     return operands;
 }
 
