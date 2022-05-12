@@ -56,6 +56,7 @@ NUMBER {DIGIT}+
 }
 
     /* whitespace */
+"//".* {}
 [\/][*] { BEGIN(COMMENTS); }
 <COMMENTS>[*][\/] { BEGIN(INITIAL);}
 <COMMENTS>. {}

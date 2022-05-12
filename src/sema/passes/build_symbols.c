@@ -1,5 +1,6 @@
 #include "common/utlist.h"
 #include "sema/pass_manager/pass_manager.h"
+#include <stdlib.h>
 
 // insert symbol for function name
 DEFINE_PASS(build_symbols_function) {
@@ -53,7 +54,6 @@ DEFINE_PASS(build_symbols_locals) {
     }
 }
 
-
 void findCallInStatement(ast_stmt_t* stmt, module_t* module);
 void findCallInStatements(ast_stmt_t* stmt, module_t* module);
 DEFINE_PASS(build_symbols_calls) {
@@ -63,17 +63,17 @@ DEFINE_PASS(build_symbols_calls) {
 }
 
 void findCallInStatement(ast_stmt_t* stmt, module_t* module) {
-    if(stmt == NULL)
-        return;
+    if(stmt == NULL) return;
 
     // if the names match, set the symbol
-    if(stmt->type == ast_CALL && stmt->left != NULL && stmt->left->type == ast_SYMBOL) {
-        //find the function
-        symbol_table_entry_t* ste = hasSymbol(module, NULL, stmt->left->data.symbol->name);
+    if(stmt->type == ast_CALL && stmt->left != NULL &&
+       stmt->left->type == ast_SYMBOL) {
+        // find the function
+        symbol_table_entry_t* ste =
+            hasSymbol(module, NULL, stmt->left->data.symbol->name);
         if(ste == NULL) {
             stmt->left->data.symbol->flags = st_ERROR;
-        }
-        else {
+        } else {
             stmt->left->data.symbol = ste->symbol;
         }
     }

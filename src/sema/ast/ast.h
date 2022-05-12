@@ -24,11 +24,10 @@ struct function {
 };
 _MAKE_LIST_FOR_TYPE(function)
 
-
 #define _AST_TYPES(V)                                                          \
     V(NOP)                                                                     \
     V(NUMBER)                                                                  \
-    V(SYMBOL)                                                                \
+    V(SYMBOL)                                                                  \
     V(EQUALS)                                                                  \
     V(DEQUALS)                                                                 \
     V(PLUS)                                                                    \
@@ -36,7 +35,7 @@ _MAKE_LIST_FOR_TYPE(function)
     V(IF)                                                                      \
     V(WHILE)                                                                   \
     V(RETURN)                                                                  \
-    V(CALL)                                                                    
+    V(CALL)
 
 typedef enum {
 #define AST_ENUM(_NAME) ast_##_NAME,
@@ -44,7 +43,6 @@ typedef enum {
 #undef AST_ENUM
 } ast_stmt_type_t;
 char* getASTTypeString(ast_stmt_type_t t);
-
 
 struct ast_stmt {
     ast_stmt_type_t type;
@@ -57,7 +55,6 @@ struct ast_stmt {
     ast_stmt_t* next;
 };
 
-
 typedef enum {
     st_ERROR = 0,
     st_FUNCTION = 1,
@@ -69,7 +66,6 @@ struct symbol {
     symbol_flags_t flags;
 };
 _MAKE_LIST_FOR_TYPE(symbol)
-
 
 typedef struct symbol_table_entry symbol_table_entry_t;
 struct symbol_table_entry {
@@ -84,8 +80,10 @@ struct module {
     function_list_t* functions;
     symbol_table_entry_t* symbol_table;
 };
-symbol_table_entry_t* hasSymbol(module_t* module, function_t* function, char* name);
-symbol_table_entry_t* insertSymbol(module_t* module, function_t* function, char* name, symbol_flags_t flags);
+symbol_table_entry_t*
+hasSymbol(module_t* module, function_t* function, char* name);
+symbol_table_entry_t* insertSymbol(
+    module_t* module, function_t* function, char* name, symbol_flags_t flags);
 void propogateSymbol(function_t* function, symbol_table_entry_t* ste);
 
 #endif

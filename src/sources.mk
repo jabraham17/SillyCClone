@@ -24,9 +24,10 @@ all: $(OBJ_PATH) $(TARGET)
 $(OBJ_PATH):
 	$(AT)mkdir -p $@
 
-.PHONY: clean
-clean:
-	$(AT)$(RM) $(TARGET) $(DEPENDS) $(OBJECTS)
+# not needed, toplevel handles deleting dir
+# .PHONY: clean
+# clean:
+# 	$(AT)$(RM) $(TARGET) $(DEPENDS) $(OBJECTS)
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.c Makefile
 	$(AT)mkdir -p $(dir $@)

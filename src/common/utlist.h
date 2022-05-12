@@ -124,6 +124,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     #define UTLIST_CASTASGN(a, b) (a) = (b)
 #endif
 
+// extra modifications
+#include "utlist_extended.h"
+
 /******************************************************************************
  * The sort macro is an adaptation of Simon Tatham's O(n log(n)) mergesort    *
  * Unwieldy variable names used here to avoid shadowing passed-in variables.  *
