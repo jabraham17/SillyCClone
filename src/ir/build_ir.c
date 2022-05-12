@@ -73,7 +73,7 @@ ir_operand_t* get_ir_expression(
         oper = ir_build_operand_immediate(stmt->data.num);
     } else {
         *inst = get_ir_instruction(stmt, mm);
-        oper = (*inst)->operands[0];
+        oper = (*inst)->prev->operands[0]; // last inst operand
     }
     return oper;
 }
