@@ -1,14 +1,18 @@
 
-TOPTARGETS=all clean
+TOPTARGETS=all
 
 SUBDIRS=src
 
 MKFILE_PATH=$(abspath $(lastword $(MAKEFILE_LIST)))
 MKFILE_DIR=$(dir $(MKFILE_PATH))
 export ROOT_PROJECT_DIRECTORY=$(MKFILE_DIR)
-export BIN_DIRECTORY=$(ROOT_PROJECT_DIRECTORY)bin/
-export OBJ_DIRECTORY=$(BIN_DIRECTORY)obj/
-export LIB_DIRECTORY=$(ROOT_PROJECT_DIRECTORY)lib/
+
+BUILD=build
+export BUILD_DIRECTORY=$(ROOT_PROJECT_DIRECTORY)$(BUILD)/
+
+export BIN_DIRECTORY=$(BUILD_DIRECTORY)bin/
+export OBJ_DIRECTORY=$(BUILD_DIRECTORY)obj/
+export LIB_DIRECTORY=$(BUILD_DIRECTORY)lib/
 
 export OS=$(shell uname)
 ifeq ($(OS),Linux)
@@ -65,7 +69,8 @@ override CFLAGS+= -DOS_SPECIFIC=$(OS) -Wno-comment
 export EXTENSION=c
 
 ifeq ($(DEBUG),1)
-override CFLAGS+= -DDEBUG=1 -g -O0
+override CFLAGS+= -DDEBUG=1 -g -O0 
+# -fno-pie
 override CFLAGS+= -DROOT_PROJECT_DIRECTORY="\"$(ROOT_PROJECT_DIRECTORY)\""
 else
 override CFLAGS+= -O3
@@ -99,25 +104,36 @@ export LFLAGS
 
 .PHONY: $(TOPTARGETS)
 
-all: $(BIN_DIRECTORY) $(LIB_DIRECTORY) $(OBJ_DIRECTORY)
+all: $(BUILD_DIRECTORY) $(BIN_DIRECTORY) $(LIB_DIRECTORY) $(OBJ_DIRECTORY)
 	@:
 
-$(BIN_DIRECTORY):
-	$(AT)mkdir -p $@
-
-$(LIB_DIRECTORY):
-	$(AT)mkdir -p $@
-
-$(OBJ_DIRECTORY):
+$(BUILD_DIRECTORY) $(BIN_DIRECTORY) $(LIB_DIRECTORY) $(OBJ_DIRECTORY):
 	$(AT)mkdir -p $@
 
 clean:
-	$(AT)$(RM) -r $(BIN_DIRECTORY) $(LIB_DIRECTORY)
+	$(RM) -r $(BUILD_DIRECTORY)
 
 $(TOPTARGETS): $(SUBDIRS)
 
 .PHONY: $(SUBDIRS)
 $(SUBDIRS):
-	@echo "make -C $@ $(MAKECMDGOALS)"
+	@echo "MAKE -C $@ $(MAKECMDGOALS)"
 	@$(MAKE) --no-print-directory -C $@ $(MAKECMDGOALS)
 
+
+# .PHONY: scan_build
+# scan_build:
+# 	/usr/local/opt/llvm/bin/scan-build
+
+# define echo_var
+# $(shell echo "$1=$($1_1)")
+# endef
+# $(call map,echo_var,CC LD YACC LEX AR RANLIB)
+.PHONY: dump_paths
+dump_paths:
+	@echo "CC=$(CC_1)" 
+	@echo "LD=$(LD_1)" 
+	@echo "YACC=$(YACC_1)" 
+	@echo "LEX=$(LEX_1)" 
+	@echo "AR=$(AR_1)" 
+	@echo "RANLIB=$(RANLIB_1)" 

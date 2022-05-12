@@ -7,3 +7,5 @@ IndentCaseLabels: true
 UseTab: Never
 PointerAlignment: Left
 IndentPPDirectives: BeforeHash
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse

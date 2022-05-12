@@ -16,3 +16,6 @@ https://www.gnu.org/software/bison/manual/html_node/Error-Recovery.html
 
 
 ./bin/ptviewer -i test.txt | dot -Tpng | open -a Preview.app -f
+
+make VERBOSE=0 DEBUG=1 BUILD=build-debug -j4
+make -j4
