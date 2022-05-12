@@ -33,9 +33,7 @@ void dump_operand(FILE* fp, ir_operand_t* oper) {
         case ir_JMP_TARGET:
             fprintf(fp, "@%-5d", get_inst_idx(oper->target));
             break;
-        case ir_CALL_TARGET:
-            fprintf(fp, "@%-5s", oper->function->name);
-            break;
+        case ir_CALL_TARGET: fprintf(fp, "@%-5s", oper->function->name); break;
         default: fprintf(fp, "UNKWN ");
     }
 }
@@ -53,9 +51,7 @@ void dump_instruction(FILE* fp, ir_instruction_t* inst) {
 void dump_function(FILE* fp, ir_function_t* func) {
     fprintf(fp, "FUNC %s:\n", func->name);
     ir_instruction_t* elm;
-    DL_FOREACH(func->ir, elm) {
-        dump_instruction(fp, elm);
-    }
+    DL_FOREACH(func->ir, elm) { dump_instruction(fp, elm); }
 }
 
 void dump_symbol(FILE* fp, ir_register_t* reg) {
@@ -128,7 +124,7 @@ int main(int argc, char** argv) {
     }
     if(!outFile) {
         fprintf(stderr, "Invalid output file\n");
-        return -1;
+        return 1;
     }
 
     dump_functions(outFile, ir_funcs, dumpSymbols);

@@ -83,6 +83,8 @@ ir_opcode_t get_irop(ast_stmt_type_t tt) {
         case ast_DEQUALS: return ir_CMP;
         case ast_PLUS: return ir_ADD;
         case ast_MINUS: return ir_SUB;
+        case ast_RETURN: return ir_RET;
+        case ast_PRINT: return ir_PRINT;
         default: return ir_NOP;
     }
 }
@@ -151,13 +153,15 @@ ir_instruction_t* get_ir_instruction(ast_stmt_t* stmt, ir_memorymap_t* mm) {
             break;
         }
 
+        // print and return have the same logic
+        case ast_PRINT:
         case ast_RETURN: {
             ir_instruction_t* ret_val_inst = NULL;
             ir_operand_t* ret_oper =
                 get_ir_expression(stmt->left, mm, &ret_val_inst);
 
             ir_instruction_t* ret_inst =
-                ir_build_instruction(ir_RET, ret_oper, NULL);
+                ir_build_instruction(get_irop(stmt->type), ret_oper, NULL);
             if(ret_val_inst) DL_CONCAT_OR_APPEND(inst, ret_val_inst);
             DL_CONCAT_OR_APPEND(inst, ret_inst);
             break;
