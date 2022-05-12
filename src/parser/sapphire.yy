@@ -25,7 +25,7 @@
   id_list_t* id_list_type;
 }
 
-%token FUNC PARAM VAR CALL RETURN IF WHILE
+%token FUNC PARAM VAR CALL RETURN IF WHILE PRINT
 %token PLUS MINUS EQUALS DEQUALS
 %token SEMICOLON LPAREN RPAREN LCURLY RCURLY COMMA
 %token <lexeme> ID
@@ -36,7 +36,7 @@
 %left DEQUALS
 %left PLUS MINUS
 
-%type <pt_type> file function_def_list function_def function_name param_def var_def statement_list empty_statement_list statement expr function_call return_statement if_statement while_statement
+%type <pt_type> file function_def_list function_def function_name param_def var_def statement_list empty_statement_list statement expr function_call return_statement if_statement while_statement print_statement
 %type <id_list_type> id_list
 
 
@@ -94,6 +94,7 @@ statement:
     | return_statement SEMICOLON { $$ = $1; }
     | if_statement { $$ = $1; }
     | while_statement { $$ = $1; }
+    | print_statement { $$ = $1; }
     | SEMICOLON { $$ = allocatePT_TYPE(pt_NONE); }
     ;
 expr:
@@ -154,6 +155,12 @@ while_statement:
         $$ = allocatePT_TYPE(pt_WHILE);
         addChild($$, $3);
         addChild($$, $6);
+    }
+    ;
+print_statement:
+    PRINT expr SEMICOLON {
+        $$ = allocatePT_TYPE(pt_PRINT);
+        addChild($$, $2);
     }
     ;
 id_list:

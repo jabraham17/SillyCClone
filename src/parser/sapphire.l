@@ -30,6 +30,7 @@ NUMBER {DIGIT}+
 "RETURN" { return RETURN; }
 "IF" { return IF; }
 "WHILE" { return WHILE; }
+"PRINT" { return PRINT; }
 
     /* operators */
 "+" { return PLUS; } 

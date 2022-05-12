@@ -35,7 +35,8 @@ _MAKE_LIST_FOR_TYPE(function)
     V(IF)                                                                      \
     V(WHILE)                                                                   \
     V(RETURN)                                                                  \
-    V(CALL)
+    V(CALL)                                                                    \
+    V(PRINT)
 
 typedef enum {
 #define AST_ENUM(_NAME) ast_##_NAME,

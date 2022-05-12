@@ -28,22 +28,23 @@ struct ir_function {
 _MAKE_LIST_FOR_TYPE(ir_function)
 
 #define _IR_OPCODE_ZERO_ARG(V) V(NOP)
-#define _IR_OPCODE_ONE_ARG(V)                                                   \
+#define _IR_OPCODE_ONE_ARG(V)                                                  \
     V(RET)                                                                     \
-    V(JMP)
-#define _IR_OPCODE_TWO_ARG(V)                                                   \
+    V(JMP)                                                                     \
+    V(PRINT)
+#define _IR_OPCODE_TWO_ARG(V)                                                  \
     V(COPY)                                                                    \
     V(CJMP)
-#define _IR_OPCODE_THREE_ARG(V)                                                 \
+#define _IR_OPCODE_THREE_ARG(V)                                                \
     V(ADD)                                                                     \
     V(SUB)                                                                     \
     V(CMP)
 #define _IR_OPCODE_MANY_ARG(V) V(CALL)
-#define _IR_OPCODES(V)                                                           \
-    _IR_OPCODE_ZERO_ARG(V)                                                      \
-    _IR_OPCODE_ONE_ARG(V)                                                       \
-    _IR_OPCODE_TWO_ARG(V)                                                       \
-    _IR_OPCODE_THREE_ARG(V)                                                     \
+#define _IR_OPCODES(V)                                                         \
+    _IR_OPCODE_ZERO_ARG(V)                                                     \
+    _IR_OPCODE_ONE_ARG(V)                                                      \
+    _IR_OPCODE_TWO_ARG(V)                                                      \
+    _IR_OPCODE_THREE_ARG(V)                                                    \
     _IR_OPCODE_MANY_ARG(V)
 
 // ir_PHI, implement this later when we add ssa
@@ -94,8 +95,7 @@ struct ir_instruction {
 ir_instruction_t* ir_build_instruction(ir_opcode_t opcode, ...);
 ir_instruction_t*
 ir_build_instruction_with_operands(ir_opcode_t opcode, ir_operand_t** operands);
-ir_operand_t**
-ir_build_operands(unsigned int noperands, ...);
+ir_operand_t** ir_build_operands(unsigned int noperands, ...);
 ir_operand_t** ir_alloc_operands(unsigned int noperands);
 // destination is always first operand
 

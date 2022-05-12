@@ -8,8 +8,7 @@
 #include <unistd.h>
 
 void _ptToDot(pt_t* pt, FILE* f) {
-    if(pt == NULL)
-        return;
+    if(pt == NULL) return;
 
     switch(pt->type) {
         case pt_NONE: {
@@ -33,7 +32,7 @@ void _ptToDot(pt_t* pt, FILE* f) {
         case pt_RETURN:
         case pt_FUNCTION_DEF:
         case pt_CALL:
-        {
+        case pt_PRINT: {
             fprintf(
                 f, "%ld[label=\"%s\"];\n", (intptr_t)pt,
                 getPTTypeString(pt->type));
@@ -54,9 +53,7 @@ void _ptToDot(pt_t* pt, FILE* f) {
             fprintf(f, "\"];\n");
             break;
         }
-        default:
-            fprintf(stderr, "Unknown pt type\n");
-            break;
+        default: fprintf(stderr, "Unknown pt type\n"); break;
     }
     size_t idx = 0;
     while(pt->children[idx] != NULL) {
@@ -65,7 +62,8 @@ void _ptToDot(pt_t* pt, FILE* f) {
         idx++;
     }
     if(pt->next != NULL) {
-        fprintf(f, "%ld->%ld[label=next];\n", (intptr_t)pt, (intptr_t)(pt->next));
+        fprintf(
+            f, "%ld->%ld[label=next];\n", (intptr_t)pt, (intptr_t)(pt->next));
         _ptToDot(pt->next, f);
     }
 }
@@ -83,15 +81,10 @@ int main(int argc, char** argv) {
     opterr = 1;
     while((c = getopt(argc, argv, "i:o:")) != -1) {
         switch(c) {
-            case 'i':
-                inFileName = optarg;
-                break;
-            case 'o':
-                outFileName = optarg;
-                break;
+            case 'i': inFileName = optarg; break;
+            case 'o': outFileName = optarg; break;
             case '?':
-            default:
-                return 1;
+            default: return 1;
         }
     }
 
@@ -104,7 +97,7 @@ int main(int argc, char** argv) {
     }
     if(!inFile) {
         fprintf(stderr, "Invalid input file\n");
-        return -1;
+        return 1;
     }
 
     pt_t* root = parse(inFile);
@@ -119,7 +112,7 @@ int main(int argc, char** argv) {
     }
     if(!outFile) {
         fprintf(stderr, "Invalid output file\n");
-        return -1;
+        return 1;
     }
 
     ptToDot(root, outFile);

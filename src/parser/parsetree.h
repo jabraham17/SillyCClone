@@ -17,6 +17,7 @@ id_list_t* getIDNode(char* id, id_list_t* oldList);
     V(IF)                                                                      \
     V(WHILE)                                                                   \
     V(RETURN)                                                                  \
+    V(PRINT)                                                                   \
     /* functions */                                                            \
     V(FUNCTION_DEF)                                                            \
     V(CALL)                                                                    \

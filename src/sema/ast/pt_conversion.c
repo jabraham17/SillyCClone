@@ -152,6 +152,18 @@ ast_stmt_t* get_return_stmt(pt_t* pt_ret) {
     return ret_stmt;
 }
 
+ast_stmt_t* get_print_stmt(pt_t* pt_print) {
+    assert(pt_print != NULL && pt_print->type == pt_PRINT);
+
+    ast_stmt_t* print_stmt = malloc(sizeof(*print_stmt));
+    print_stmt->type = ast_PRINT;
+    print_stmt->left = get_expr(pt_print->children[0]);
+    print_stmt->right = NULL;
+    print_stmt->next = NULL;
+
+    return print_stmt;
+}
+
 ast_stmt_t* get_call_stmt(pt_t* pt_call) {
     assert(pt_call != NULL && pt_call->type == pt_CALL);
 
@@ -210,6 +222,9 @@ ast_stmt_t* get_stmt(pt_t* pt_stmt) {
     }
     if(is_pt_of_type(pt_stmt->type, pt_RETURN, pt_NONE)) {
         return get_return_stmt(pt_stmt);
+    }
+    if(is_pt_of_type(pt_stmt->type, pt_PRINT, pt_NONE)) {
+        return get_print_stmt(pt_stmt);
     }
 
     assert(0);
