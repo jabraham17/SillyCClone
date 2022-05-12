@@ -25,6 +25,18 @@ VAR a, b, c, d;
     c = 9;
     d = a + c + b;
     PRINT d;
+
+    IF(d == 16) {
+        PRINT 1;
+    }
+    c = 1;
+    WHILE(c) {
+        PRINT d;
+        d = d - 1;
+        IF(d == 0) {
+            c = 0;
+        }
+    }
 }
 
 FUNC test;

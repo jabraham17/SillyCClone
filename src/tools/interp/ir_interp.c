@@ -34,15 +34,27 @@ ir_instruction_t* execute_inst(FILE* fp, ir_instruction_t* inst, long* memory) {
                 get_value(opers[1], memory) - get_value(opers[2], memory);
             break;
         }
-        case ir_CMP:
-        case ir_JMP:
-        case ir_CJMP:
+        // equailty, 1 if equal, 0 if not
+        case ir_CMP: {
+            vregister_t dest_addr = opers[0]->vregister->reg;
+            memory[dest_addr] =
+                get_value(opers[1], memory) == get_value(opers[2], memory);
+            break;
+        }
+        case ir_JMP: next = opers[0]->target; break;
+        // jump if zero
+        case ir_CJMP: {
+            vregister_t dest_addr = opers[0]->vregister->reg;
+            if(memory[dest_addr] == 0) {
+                next = opers[1]->target;
+            }
+            break;
+        }
         case ir_CALL:
         case ir_RET: break;
 
         case ir_PRINT: {
-            vregister_t dest_addr = opers[0]->vregister->reg;
-            fprintf(fp, "%ld\n", memory[dest_addr]);
+            fprintf(fp, "%ld\n", get_value(opers[0], memory));
             break;
         }
         case ir_NOP:
