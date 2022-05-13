@@ -153,12 +153,22 @@ ir_instruction_t* get_ir_instruction(ast_stmt_t* stmt, ir_memorymap_t* mm) {
             break;
         }
 
-        // print and return have the same logic
+        // print and return similar logic
         case ast_PRINT:
         case ast_RETURN: {
             ir_instruction_t* ret_val_inst = NULL;
             ir_operand_t* ret_oper =
                 get_ir_expression(stmt->left, mm, &ret_val_inst);
+
+            // if a return, copy the expression to the return address
+            if(stmt->type == ast_RETURN) {
+                ir_operand_t* copy_oper =
+                    ir_build_operand_vregister(mm->return_reg);
+                ir_instruction_t* copy =
+                    ir_build_instruction(ir_COPY, copy_oper, ret_oper, NULL);
+                ret_oper = copy_oper;
+                DL_CONCAT_OR_APPEND(ret_val_inst, copy);
+            }
 
             ir_instruction_t* ret_inst =
                 ir_build_instruction(get_irop(stmt->type), ret_oper, NULL);
@@ -232,6 +242,10 @@ ir_function_t* get_ir_function(function_t* function) {
 
     symbol_list_t* symbols = NULL;
 
+    // allocate the return value, even if no return value we allocate like their
+    // is one
+    ir_func->mm->return_reg = ir_get_temp_irreg(ir_func->mm);
+
     // allocate all the params
     DL_FOREACH(function->params, symbols) {
         ir_get_irreg(ir_func->mm, symbols->symbol);
@@ -248,7 +262,8 @@ ir_function_t* get_ir_function(function_t* function) {
 }
 
 void fixup_ir_call_inst(ir_instruction_t* inst, ir_function_list_t* functions) {
-    assert(inst->opcode == ir_CALL && inst->operands[1]->type == ir_CALL_TARGET);
+    assert(
+        inst->opcode == ir_CALL && inst->operands[1]->type == ir_CALL_TARGET);
     char* call_name = inst->operands[1]->function->name;
     int fixed = 1;
     ir_function_list_t* function = NULL;
@@ -260,7 +275,8 @@ void fixup_ir_call_inst(ir_instruction_t* inst, ir_function_list_t* functions) {
         }
     }
     if(!fixed) {
-        fprintf(stderr, "Invalid function call, likely missed a semantic check\n");
+        fprintf(
+            stderr, "Invalid function call, likely missed a semantic check\n");
         exit(1);
     }
 }

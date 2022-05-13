@@ -108,6 +108,7 @@ _MAKE_LIST_FOR_TYPE(ir_register)
 struct ir_memorymap {
     vregister_t next_reg;
     ir_register_list_t* registers;
+    ir_register_t* return_reg;
 };
 
 ir_memorymap_t* ir_init_mm();

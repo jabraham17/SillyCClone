@@ -100,6 +100,7 @@ ir_memorymap_t* ir_init_mm() {
     ir_memorymap_t* mm = malloc(sizeof(*mm));
     mm->next_reg = 0;
     mm->registers = NULL;
+    mm->return_reg = NULL;
     return mm;
 }
 

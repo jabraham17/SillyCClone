@@ -13,6 +13,9 @@ long get_value(ir_operand_t* oper, long* memory) {
     }
 }
 
+void _execute_ir(FILE* fp, ir_function_t* function, long* memory);
+long* allocate_memory(ir_function_t* function);
+
 ir_instruction_t* execute_inst(FILE* fp, ir_instruction_t* inst, long* memory) {
     ir_instruction_t* next = inst->next;
     ir_operand_t** opers = inst->operands;
@@ -50,8 +53,35 @@ ir_instruction_t* execute_inst(FILE* fp, ir_instruction_t* inst, long* memory) {
             }
             break;
         }
-        case ir_CALL:
-        case ir_RET: break;
+        case ir_CALL: {
+            vregister_t result_reg = opers[0]->vregister->reg;
+            ir_function_t* func = opers[1]->function;
+            long* newFunctionStack = allocate_memory(func);
+
+            //fill memory with args, first one is result
+            int i = 1;
+            // we want to skip the first two
+            // skip elegantly by only adding one
+            // because the index is 1 based instead of 0 based
+            ir_operand_t** args = opers + 1;
+            while(args[i] != NULL) {
+                newFunctionStack[i] = get_value(args[i], memory);
+                i++;
+            }
+            // execute function
+            _execute_ir(fp, func, newFunctionStack);
+            // return is in first memory slot
+            memory[result_reg] = newFunctionStack[0];
+            break;
+        }
+        case ir_RET: {
+            // copy return value to first memory arg
+            //memory[0] = get_value(opers[0], memory);
+            // because the return address is already set from the COPY, we arer done
+            // TODO: this may be a source of bugs later
+            next = NULL; // return from function
+        break;
+        }
 
         case ir_PRINT: {
             fprintf(fp, "%ld\n", get_value(opers[0], memory));
@@ -64,17 +94,14 @@ ir_instruction_t* execute_inst(FILE* fp, ir_instruction_t* inst, long* memory) {
 }
 
 void _execute_ir(FILE* fp, ir_function_t* function, long* memory) {
-    ir_instruction_t* inst = function->ir;
-    while(inst != NULL) {
-        // if execute instruction returns a new instruction, use it
-        // otherwise, just go the end of list
-        ir_instruction_t* temp = execute_inst(fp, inst, memory);
-        if(temp) inst = temp;
-        else inst = inst->next;
+    ir_instruction_t* pc = function->ir;
+    while(pc != NULL) {
+        pc = execute_inst(fp, pc, memory);
     }
 }
 
 long* allocate_memory(ir_function_t* function) {
+    // allocate one extra for return
     int n_vregisters = function->mm->next_reg + 1;
     long* memory = malloc(n_vregisters * sizeof(*memory));
     return memory;
