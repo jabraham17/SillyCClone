@@ -42,9 +42,9 @@ else
 export AT=
 endif
 
-define make_rel_to_root
-$(shell realpath --relative-to $(ROOT_PROJECT_DIRECTORY) $1)
-endef
+# define make_rel_to_root
+# $(shell realpath --relative-to $(ROOT_PROJECT_DIRECTORY) $1)
+# endef
 
 define _generate_verbose_call
 $1_0 = @printf "%s %s\n" $1 $$$$(shell sed s%$(ROOT_PROJECT_DIRECTORY)%% <<< $$$$@); $($1)
