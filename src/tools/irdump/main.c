@@ -70,10 +70,15 @@ void dump_symbols(FILE* fp, ir_function_t* func) {
 void dump_functions(FILE* fp, ir_function_list_t* funcs, int dumpSymbols) {
     fprintf(fp, "MODULE\n\n");
     ir_function_list_t* elm;
-    char sep = '\0';
+    // dirty trick, since I cant have an empty string
+    // instead I can have a str of length 1, then either contains the null char
+    // or it contains the seperator
+    // when it contains the null char, it appears as a zero length string
+    // genius!
+    char sep[2] = {'\0','\0'};
     DL_FOREACH(funcs, elm) {
-        fputc(sep, fp);
-        sep = '\n';
+        fputs(sep, fp);
+        sep[0] = '\n';
 
         dump_function(fp, elm->ir_function);
         if(dumpSymbols) dump_symbols(fp, elm->ir_function);
