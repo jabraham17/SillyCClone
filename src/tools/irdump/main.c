@@ -1,3 +1,6 @@
+#include "common/args/arg_creation.h"
+#include "common/args/file_helper.h"
+#include "common/args/string_list.h"
 
 #include "common/utlist.h"
 #include "ir/build_ir.h"
@@ -77,44 +80,12 @@ void dump_functions(FILE* fp, ir_function_list_t* funcs, int dumpSymbols) {
     }
 }
 
-typedef struct ll_str ll_str_t;
-struct ll_str {
-    char* str;
-    ll_str_t* next;
-};
-ll_str_t* get_ll_str(char* n) {
-    ll_str_t* ll = malloc(sizeof(*ll));
-    ll->str = n;
-    ll->next = NULL;
-    return ll;
-}
-int ll_to_array(ll_str_t* ll, char*** array) {
-    int count;
-    ll_str_t* elm;
-    LL_COUNT(ll, elm, count);
-
-    if(count <= 0) {
-        *array = NULL;
-        return 0;
-    }
-    char** local_array = malloc(sizeof(*local_array) * count);
-    elm = ll;
-    int idx = 0;
-    while(idx < count && elm != NULL) {
-        local_array[idx] = elm->str;
-        idx++;
-        elm = elm->next;
-    }
-
-    *array = local_array;
-    return count;
-}
-
-int str_in_strarr(char* str, char** array, int length) {
-    for(int i = 0; i < length; i++) {
-        if(strcmp(str, array[i]) == 0) {
+int str_in_strarr(char* str, char** array) {
+    while(*array != NULL) {
+        if(strcmp(str, *array) == 0) {
             return 1;
         }
+        array++;
     }
     return 0;
 }
@@ -125,38 +96,25 @@ int main(int argc, char** argv) {
     char* inFileName = NULL;
     char* outFileName = NULL;
     int dumpSymbols = 0;
-    ll_str_t* functionNames_ll = NULL;
-    char c;
-    opterr = 1;
-    while((c = getopt(argc, argv, "i:o:sf:d")) != -1) {
-        switch(c) {
-            case 'i': inFileName = optarg; break;
-            case 'o': outFileName = optarg; break;
-            case 'd': _debug_mode = 1; break;
-            case 's': dumpSymbols = 1; break;
-            case 'f': {
-                LL_APPEND(functionNames_ll, get_ll_str(optarg));
-                break;
-            }
-            case '?':
-            default: return 1;
-        }
-    }
+    SL_INIT(functionNamesLL);
+
+    #define add_file_to_filter SL_ADD(functionNamesLL, optarg);
+
+#define ARGS(WITH_ARG, WITH_BOOL, WITH_CUSTOM)                                 \
+    WITH_ARG(i, inFileName)                                                    \
+    WITH_ARG(o, outFileName)                                                   \
+    WITH_BOOL(s, dumpSymbols)                                                  \
+    WITH_BOOL(d, _debug_mode)                                                  \
+    WITH_CUSTOM(f, add_file_to_filter, ":")
+
+    MAKE_ARGS(argc, argv, ARGS);
+
 
     FILE* inFile = NULL;
-    if(inFileName != NULL) {
-        inFile = fopen(inFileName, "r");
-    } else {
-        int stdinDup = dup(fileno(stdin));
-        inFile = fdopen(stdinDup, "r");
-    }
-    if(!inFile) {
-        fprintf(stderr, "Invalid input file\n");
-        return 1;
-    }
+    OPEN_FILE_OR_STDIN(inFile, inFileName);
 
-    char** functionNames = NULL;
-    int nFunctions = ll_to_array(functionNames_ll, &functionNames);
+    // char** functionNames = ll_to_array(functionNames_ll);
+    SL_ARRAY(functionNamesLL, functionNames);
 
     pt_t* root = parse(inFile);
     fclose(inFile);
@@ -166,13 +124,12 @@ int main(int argc, char** argv) {
 
     // only want to filter out after processing, before printing
     // this way external references to other functions not included still work
-    if(nFunctions != 0) {
+    if(functionNames) {
         ir_function_list_t* filteredFuncs = NULL;
         ir_function_list_t* elm = NULL;
         ir_function_list_t* temp = NULL;
         DL_FOREACH_SAFE(ir_funcs, elm, temp) {
-            if(str_in_strarr(
-                   elm->ir_function->name, functionNames, nFunctions)) {
+            if(str_in_strarr(elm->ir_function->name, functionNames)) {
                 DL_DELETE(ir_funcs, elm);
                 DL_APPEND(filteredFuncs, elm);
             }
@@ -181,16 +138,7 @@ int main(int argc, char** argv) {
     }
 
     FILE* outFile = NULL;
-    if(outFileName != NULL) {
-        outFile = fopen(outFileName, "w");
-    } else {
-        int stdoutDup = dup(fileno(stdout));
-        outFile = fdopen(stdoutDup, "w");
-    }
-    if(!outFile) {
-        fprintf(stderr, "Invalid output file\n");
-        return 1;
-    }
+    OPEN_FILE_OR_STDOUT(outFile, outFileName);
 
     dump_functions(outFile, ir_funcs, dumpSymbols);
     fclose(outFile);

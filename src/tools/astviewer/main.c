@@ -1,4 +1,6 @@
 
+#include "common/args/arg_creation.h"
+#include "common/args/file_helper.h"
 #include "parser/parser.h"
 #include "sema/ast/ast.h"
 #include "sema/ast/pt_conversion.h"
@@ -140,69 +142,41 @@ void functionToDot(function_t* func, FILE* f) {
     fprintf(f, "}\n");
 }
 
+void moduleToDot(module_t* module, FILE* f) {
+    fprintf(f, "digraph ast {\n");
+    fprintf(f, "compound=true;\n");
+    function_list_t* functions = module->functions;
+    function_list_t* temp = functions;
+    while(temp != NULL) {
+        functionToDot(temp->function, f);
+        temp = temp->next;
+    }
+    fprintf(f, "}\n");
+}
+
 int _debug_mode = 0;
 
 int main(int argc, char** argv) {
 
     char* inFileName = NULL;
     char* outFileName = NULL;
-    char c;
-    opterr = 1;
-    while((c = getopt(argc, argv, "i:o:d")) != -1) {
-        switch(c) {
-            case 'i': inFileName = optarg; break;
-            case 'o': outFileName = optarg; break;
-            case 'd': _debug_mode = 1; break;
-            case '?':
-            default: return 1;
-        }
-    }
+#define ARGS(WITH_ARG, WITH_BOOL, WITH_CUSTOM)                                 \
+    WITH_ARG(i, inFileName)                                                    \
+    WITH_ARG(o, outFileName)                                                   \
+    WITH_BOOL(d, _debug_mode)
+
+    MAKE_ARGS(argc, argv, ARGS);
 
     FILE* inFile = NULL;
-    if(inFileName != NULL) {
-        inFile = fopen(inFileName, "r");
-    } else {
-        int stdinDup = dup(fileno(stdin));
-        inFile = fdopen(stdinDup, "r");
-    }
-    if(!inFile) {
-        fprintf(stderr, "Invalid input file\n");
-        return 1;
-    }
-
+    OPEN_FILE_OR_STDIN(inFile, inFileName);
     pt_t* root = parse(inFile);
     fclose(inFile);
-
     module_t* module = pt_to_ast(root);
-
-    // pass_t* p = chainPass(buildPass(PASS_silly_pass),
-    // buildPass(PASS_silly_pass2), NULL);
-
-    // runPass(module, buildPass(PASS_all_silly));
     runPass(module, buildPass(PASS_build_symbol_table));
 
     FILE* outFile = NULL;
-    if(outFileName != NULL) {
-        outFile = fopen(outFileName, "w");
-    } else {
-        int stdoutDup = dup(fileno(stdout));
-        outFile = fdopen(stdoutDup, "w");
-    }
-    if(!outFile) {
-        fprintf(stderr, "Invalid output file\n");
-        return 1;
-    }
-
-    fprintf(outFile, "digraph ast {\n");
-    fprintf(outFile, "compound=true;\n");
-    function_list_t* functions = module->functions;
-    function_list_t* temp = functions;
-    while(temp != NULL) {
-        functionToDot(temp->function, outFile);
-        temp = temp->next;
-    }
-    fprintf(outFile, "}\n");
-
+    OPEN_FILE_OR_STDOUT(outFile, outFileName);
+    moduleToDot(module, outFile);
     fclose(outFile);
 
     return 0;

@@ -5,3 +5,5 @@ lib
 *.o
 *.d
 sapphire_parser.h
+build
+debug

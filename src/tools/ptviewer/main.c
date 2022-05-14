@@ -1,4 +1,6 @@
 
+#include "common/args/arg_creation.h"
+#include "common/args/file_helper.h"
 #include "parser/parser.h"
 #include "parser/parsetree.h"
 #include <getopt.h>
@@ -73,48 +75,26 @@ void ptToDot(pt_t* pt, FILE* f) {
     fprintf(f, "}\n");
 }
 
+int _debug_mode = 0;
+
 int main(int argc, char** argv) {
 
     char* inFileName = NULL;
     char* outFileName = NULL;
-    char c;
-    opterr = 1;
-    while((c = getopt(argc, argv, "i:o:")) != -1) {
-        switch(c) {
-            case 'i': inFileName = optarg; break;
-            case 'o': outFileName = optarg; break;
-            case '?':
-            default: return 1;
-        }
-    }
+#define ARGS(WITH_ARG, WITH_BOOL, WITH_CUSTOM)                                 \
+    WITH_ARG(i, inFileName)                                                    \
+    WITH_ARG(o, outFileName)                                                   \
+    WITH_BOOL(d, _debug_mode)
+
+    MAKE_ARGS(argc, argv, ARGS);
 
     FILE* inFile = NULL;
-    if(inFileName != NULL) {
-        inFile = fopen(inFileName, "r");
-    } else {
-        int stdinDup = dup(fileno(stdin));
-        inFile = fdopen(stdinDup, "r");
-    }
-    if(!inFile) {
-        fprintf(stderr, "Invalid input file\n");
-        return 1;
-    }
-
+    OPEN_FILE_OR_STDIN(inFile, inFileName);
     pt_t* root = parse(inFile);
     fclose(inFile);
 
     FILE* outFile = NULL;
-    if(outFileName != NULL) {
-        outFile = fopen(outFileName, "w");
-    } else {
-        int stdoutDup = dup(fileno(stdout));
-        outFile = fdopen(stdoutDup, "w");
-    }
-    if(!outFile) {
-        fprintf(stderr, "Invalid output file\n");
-        return 1;
-    }
-
+    OPEN_FILE_OR_STDOUT(outFile, outFileName);
     ptToDot(root, outFile);
     fclose(outFile);
 

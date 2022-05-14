@@ -1,5 +1,6 @@
-TOPTARGETS= all clean
+TOPTARGETS=all clean
 
+# TOOLS=$(filter-out tools/helper,$(patsubst %/,%,$(dir $(wildcard tools/*/.))))
 SUBDIRS= parser sema ir tools/*
 
 .PHONY: $(TOPTARGETS)

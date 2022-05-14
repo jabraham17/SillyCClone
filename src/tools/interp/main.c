@@ -1,3 +1,5 @@
+#include "common/args/arg_creation.h"
+#include "common/args/file_helper.h"
 #include "common/utlist.h"
 #include "ir/build_ir.h"
 #include "ir_interp.h"
@@ -30,34 +32,20 @@ int main(int argc, char** argv) {
     char* outFileName = NULL;
     char* entryFuncName = NULL;
 
-    char c;
-    opterr = 1;
-    while((c = getopt(argc, argv, "i:o:e:d")) != -1) {
-        switch(c) {
-            case 'i': inFileName = optarg; break;
-            case 'o': outFileName = optarg; break;
-            case 'e': entryFuncName = optarg; break;
-            case 'd': _debug_mode = 1; break;
-            case '?':
-            default: return 1;
-        }
-    }
+#define ARGS(WITH_ARG, WITH_BOOL, WITH_CUSTOM)                                   \
+    WITH_ARG(i, inFileName)                                                    \
+    WITH_ARG(o, outFileName)                                                   \
+    WITH_ARG(e, entryFuncName)                                                 \
+    WITH_BOOL(d, _debug_mode)
+
+    MAKE_ARGS(argc, argv, ARGS);
 
     if(!entryFuncName) {
         entryFuncName = strdup("main");
     }
 
     FILE* inFile = NULL;
-    if(inFileName != NULL) {
-        inFile = fopen(inFileName, "r");
-    } else {
-        int stdinDup = dup(fileno(stdin));
-        inFile = fdopen(stdinDup, "r");
-    }
-    if(!inFile) {
-        fprintf(stderr, "Invalid input file\n");
-        return 1;
-    }
+    OPEN_FILE_OR_STDIN(inFile, inFileName);
 
     pt_t* root = parse(inFile);
     fclose(inFile);
@@ -66,16 +54,7 @@ int main(int argc, char** argv) {
     ir_function_list_t* ir_funcs = ast_to_ir(module);
 
     FILE* outFile = NULL;
-    if(outFileName != NULL) {
-        outFile = fopen(outFileName, "w");
-    } else {
-        int stdoutDup = dup(fileno(stdout));
-        outFile = fdopen(stdoutDup, "w");
-    }
-    if(!outFile) {
-        fprintf(stderr, "Invalid output file\n");
-        return 1;
-    }
+    OPEN_FILE_OR_STDOUT(outFile, outFileName);
 
     ir_function_t* entryFunc = get_entry_func(entryFuncName, ir_funcs);
     if(!entryFunc) {
